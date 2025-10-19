@@ -99,8 +99,7 @@ router.post('/', auth, upload.single('document'), handleUploadErrors, async (req
           name: fileInfo.fileName,
           path: fileInfo.filePath,
           size: fileInfo.size,
-          mime_type: fileInfo.mimeType,
-          is_primary: true
+          mime_type: fileInfo.mimeType
         }
       ]);
 
@@ -140,7 +139,6 @@ router.get('/my-projects', auth, async (req, res) => {
           path,
           size,
           mime_type,
-          is_primary,
           uploaded_at
         )
       `)
@@ -160,8 +158,7 @@ router.get('/my-projects', auth, async (req, res) => {
 
       return {
         ...project,
-        documents,
-        document: documents.find(doc => doc.is_primary) || null
+        documents
       };
     }));
 
@@ -219,8 +216,7 @@ router.post(
         name: file.fileName,
         path: file.filePath,
         size: file.size,
-        mime_type: file.mimeType,
-        is_primary: false
+        mime_type: file.mimeType
       }));
 
       const { error: insertError } = await supabase
@@ -292,7 +288,6 @@ router.get('/:projectId', auth, async (req, res) => {
           path,
           size,
           mime_type,
-          is_primary,
           uploaded_at
         )
       `)
@@ -353,10 +348,7 @@ router.delete('/documents/:documentId', auth, async (req, res) => {
       return res.status(403).json({ error: 'Not authorized to delete this document' });
     }
 
-    // Don't allow deleting primary documents
-    if (document.is_primary) {
-      return res.status(400).json({ error: 'Cannot delete primary document' });
-    }
+    // Document can be deleted
 
     // Delete from storage
     await fileUploader.deleteFile(document.path);

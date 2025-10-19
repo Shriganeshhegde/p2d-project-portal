@@ -82,8 +82,13 @@ router.post('/create-order', auth, async (req, res) => {
 // Verify payment and save files
 router.post('/verify-payment', auth, async (req, res) => {
     try {
-        const { projectId, razorpay_order_id, razorpay_payment_id, razorpay_signature, projectData } = req.body;
+        let { projectId, razorpay_order_id, razorpay_payment_id, razorpay_signature, projectData } = req.body;
         const userId = req.user?.id;
+
+        // Generate projectId if not provided
+        if (!projectId) {
+            projectId = uuidv4();
+        }
 
         console.log('Payment verification started:', {
             projectId,
