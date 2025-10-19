@@ -133,8 +133,8 @@ router.post('/verify-payment', auth, async (req, res) => {
                 department: projectData.department || 'General',
                 semester: projectData.semester || 1,
                 payment_status: 'paid',
-                status: 'pending',
-                submission_date: new Date().toISOString()
+                status: 'pending'
+                // created_at will be set automatically by database
             }])
             .select()
             .single();
