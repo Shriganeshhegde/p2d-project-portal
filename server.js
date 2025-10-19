@@ -7,7 +7,7 @@ const { supabase, supabaseAdmin } = require('./utils/supabase');
 const app = express();
 const server = createServer(app);
 
-// Middleware - Allow localhost and production
+// Middleware - Allow localhost and production (updated for deployment)
 const allowedOrigins = [
   'http://localhost:3000',
   'https://p2d-project-portal.vercel.app'
