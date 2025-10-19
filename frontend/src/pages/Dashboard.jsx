@@ -240,11 +240,11 @@ const Dashboard = () => {
                   <div className="project-details">
                     <div className="detail-item">
                       <span className="label">Submitted:</span>
-                      <span className="value">{new Date(project.submittedDate).toLocaleDateString()}</span>
+                      <span className="value">{project.submission_date ? new Date(project.submission_date).toLocaleDateString() : 'N/A'}</span>
                     </div>
                     <div className="detail-item">
-                      <span className="label">Pages:</span>
-                      <span className="value">{project.pages}</span>
+                      <span className="label">Department:</span>
+                      <span className="value">{project.department || 'N/A'}</span>
                     </div>
                     <div className="detail-item">
                       <span className="label">Status:</span>
@@ -252,12 +252,12 @@ const Dashboard = () => {
                     </div>
                     <div className="detail-item">
                       <span className="label">Payment:</span>
-                      <span className={`badge ${project.paymentStatus}`}>{project.paymentStatus}</span>
+                      <span className={`badge ${project.payment_status}`}>{project.payment_status}</span>
                     </div>
                   </div>
                   <div className="project-actions">
                     <Link to={`/track-order/${project.id}`} className="btn-secondary">Track Order</Link>
-                    {project.paymentStatus === 'pending' && (
+                    {project.payment_status === 'pending' && (
                       <Link to={`/payment/${project.id}`} className="btn-primary">Pay Now</Link>
                     )}
                   </div>
