@@ -21,7 +21,12 @@ app.use(cors({
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      callback(null, true); // Allow all in development
+      // In production, reject unknown origins
+      if (process.env.NODE_ENV === 'production') {
+        callback(new Error('Not allowed by CORS'));
+      } else {
+        callback(null, true); // Allow all in development
+      }
     }
   },
   credentials: true
@@ -79,7 +84,7 @@ server.listen(PORT, async () => {
   
   console.log('🔒 Authentication: Enabled');
   console.log(`📁 Storage Bucket: ${process.env.SUPABASE_STORAGE_BUCKET}`);
-  console.log(`🌍 CORS Allowed Origins: ${process.env.NEXT_PUBLIC_APP_URL || '*'}`);
+  console.log(`🌍 CORS Allowed Origins: ${allowedOrigins.join(', ')}`);
 });
 
 // Handle unhandled promise rejections
