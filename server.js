@@ -7,10 +7,10 @@ const { supabase, supabaseAdmin } = require('./utils/supabase');
 const app = express();
 const server = createServer(app);
 
-// Middleware - Allow both localhost and ngrok
+// Middleware - Allow localhost and production
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://unarticulatory-kami-glisteringly.ngrok-free.dev'
+  'https://p2d-project-portal.vercel.app'
 ];
 
 app.use(cors({
