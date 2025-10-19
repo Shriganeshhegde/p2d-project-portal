@@ -133,12 +133,17 @@ router.post('/verify-payment', auth, async (req, res) => {
             id: projectId,
             student_id: userId,
             title: projectData.title,
-            description: `${projectData.pages} pages, ${projectData.copies} copies, ${projectData.printType} print, ${projectData.bindingType} binding`,
+            description: projectData.description || `${projectData.pages} pages, ${projectData.copies} copies, ${projectData.printType} print, ${projectData.bindingType} binding`,
             department: projectData.department || 'General',
-            semester: projectData.semester || 1,
+            semester: parseInt(projectData.semester) || 1,
+            pages: parseInt(projectData.pages) || 0,
+            copies: parseInt(projectData.copies) || 1,
+            print_type: projectData.printType || 'black-white',
+            binding_type: projectData.bindingType || 'spiral',
+            binding_color: projectData.bindingColor || null,
             payment_status: 'paid',
-            status: 'pending'
-            // created_at will be set automatically by database
+            status: 'pending',
+            submission_date: new Date().toISOString()
         };
 
         console.log('Attempting to insert project:', projectInsertData);

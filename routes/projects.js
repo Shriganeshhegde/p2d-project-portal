@@ -142,7 +142,8 @@ router.get('/my-projects', auth, async (req, res) => {
           uploaded_at
         )
       `)
-      .eq('student_id', userId);
+      .eq('student_id', userId)
+      .order('submission_date', { ascending: false });
 
     if (error) throw error;
 
