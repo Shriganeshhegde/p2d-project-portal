@@ -1,0 +1,160 @@
+╔════════════════════════════════════════════════════════════════╗
+║           HTTPS SETUP FOR RAZORPAY - QUICK GUIDE              ║
+╚════════════════════════════════════════════════════════════════╝
+
+⚠️  RAZORPAY REQUIRES HTTPS!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 SOLUTION: Use ngrok (Free & Easy)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STEP 1: INSTALL NGROK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Download: https://ngrok.com/download
+
+Or via Chocolatey:
+> choco install ngrok
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STEP 2: SIGN UP & GET TOKEN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Sign up: https://dashboard.ngrok.com/signup
+2. Get token: https://dashboard.ngrok.com/get-started/your-authtoken
+3. Configure:
+   > ngrok config add-authtoken YOUR_TOKEN_HERE
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STEP 3: START YOUR SERVERS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Terminal 1 - Backend:
+> cd student-project-portal
+> node server.js
+
+Terminal 2 - Frontend:
+> cd student-project-portal/frontend
+> npm start
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STEP 4: START NGROK TUNNELS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Terminal 3 - Frontend Tunnel:
+> ngrok http 3000
+
+You'll see:
+Forwarding  https://abc123.ngrok.io -> http://localhost:3000
+            ^^^^^^^^^^^^^^^^^^^^
+            COPY THIS URL!
+
+Terminal 4 - Backend Tunnel:
+> ngrok http 5000
+
+You'll see:
+Forwarding  https://xyz456.ngrok.io -> http://localhost:5000
+            ^^^^^^^^^^^^^^^^^^^^
+            COPY THIS URL!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STEP 5: UPDATE FRONTEND CONFIG
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Open: student-project-portal/frontend/.env
+
+Add/Update:
+REACT_APP_API_URL=https://xyz456.ngrok.io
+                  ^^^^^^^^^^^^^^^^^^^^^^
+                  (Your backend ngrok URL)
+
+Save and restart frontend (Ctrl+C then npm start)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STEP 6: ADD TO RAZORPAY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Go to: https://dashboard.razorpay.com/
+
+Settings → Website and App Details:
+
+Website URL: https://abc123.ngrok.io
+             ^^^^^^^^^^^^^^^^^^^^^^
+             (Your frontend ngrok URL)
+
+Webhook URL: https://xyz456.ngrok.io/api/payments/webhook
+             ^^^^^^^^^^^^^^^^^^^^^^
+             (Your backend ngrok URL)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STEP 7: TEST PAYMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Access: https://abc123.ngrok.io
+2. Login/Signup
+3. Upload project
+4. Proceed to payment
+5. Use test card:
+   Card: 4111 1111 1111 1111
+   CVV: 123
+   Expiry: 12/25
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+You need 4 terminals running:
+
+Terminal 1: Backend (node server.js)
+Terminal 2: Frontend (npm start)
+Terminal 3: ngrok for frontend (ngrok http 3000)
+Terminal 4: ngrok for backend (ngrok http 5000)
+
+Then:
+- Copy ngrok HTTPS URLs
+- Update frontend .env
+- Add to Razorpay dashboard
+- Test payment!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️  IMPORTANT NOTES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+• ngrok URLs change every time you restart
+• Update Razorpay with new URLs after restart
+• Free tier: 40 connections/minute
+• Keep all 4 terminals open while testing
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📞 HELP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ngrok not working?
+→ Check auth token configured
+→ Verify ports 3000 and 5000 are running
+→ Try restarting ngrok
+
+Can't access HTTPS URL?
+→ Check ngrok is running
+→ Copy exact URL from ngrok terminal
+→ Don't use localhost anymore
+
+Payment not working?
+→ Verify Razorpay has correct HTTPS URLs
+→ Check frontend .env has backend ngrok URL
+→ Restart frontend after .env change
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 Ready to test with HTTPS!

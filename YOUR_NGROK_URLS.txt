@@ -1,0 +1,104 @@
+╔════════════════════════════════════════════════════════════════╗
+║                  ✅ YOUR NGROK URLs FOUND!                    ║
+╚════════════════════════════════════════════════════════════════╝
+
+🌐 BOTH TUNNELS ARE RUNNING!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 YOUR HTTPS URLs
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️  IMPORTANT: Both tunnels share the same domain!
+
+Frontend (port 3000):
+https://unarticulatory-kami-glisteringly.ngrok-free.dev
+
+Backend (port 5000):
+https://unarticulatory-kami-glisteringly.ngrok-free.dev
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️  ISSUE: SAME URL FOR BOTH
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ngrok free tier is giving you the same domain for both tunnels.
+This won't work properly for the app.
+
+SOLUTION: Stop and restart with separate sessions
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔧 FIX: RUN TUNNELS SEPARATELY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STEP 1: Stop current ngrok
+Press Ctrl+C in the ngrok window
+
+STEP 2: Start Frontend Tunnel
+Open PowerShell:
+> cd C:\ngrok
+> .\ngrok.exe http 3000
+
+You'll see:
+Forwarding  https://abc123.ngrok.io -> http://localhost:3000
+            ^^^^^^^^^^^^^^^^^^^^
+            COPY THIS URL!
+
+STEP 3: Start Backend Tunnel (NEW WINDOW)
+Open NEW PowerShell:
+> cd C:\ngrok
+> .\ngrok.exe http 5000
+
+You'll see:
+Forwarding  https://xyz456.ngrok.io -> http://localhost:5000
+            ^^^^^^^^^^^^^^^^^^^^
+            COPY THIS URL!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ AFTER YOU GET DIFFERENT URLs
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. UPDATE FRONTEND .ENV:
+   File: student-project-portal\frontend\.env
+   
+   REACT_APP_API_URL=https://YOUR_BACKEND_URL.ngrok.io
+
+2. RESTART FRONTEND:
+   Ctrl+C, then: npm start
+
+3. ADD TO RAZORPAY:
+   Website URL: https://YOUR_FRONTEND_URL.ngrok.io
+
+4. GET RAZORPAY KEYS:
+   https://dashboard.razorpay.com/app/keys
+
+5. ADD TO BACKEND .ENV:
+   File: student-project-portal\.env
+   
+   RAZORPAY_KEY_ID=rzp_test_YOUR_KEY_ID
+   RAZORPAY_KEY_SECRET=YOUR_KEY_SECRET
+   ADMIN_KEY=admin_secure_key_123
+
+6. RESTART BACKEND:
+   Ctrl+C, then: node server.js
+
+7. TEST PAYMENT!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 QUICK COMMANDS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Terminal 1 - Frontend Tunnel:
+cd C:\ngrok
+.\ngrok.exe http 3000
+
+Terminal 2 - Backend Tunnel:
+cd C:\ngrok
+.\ngrok.exe http 5000
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Stop current ngrok and run tunnels separately to get different URLs!

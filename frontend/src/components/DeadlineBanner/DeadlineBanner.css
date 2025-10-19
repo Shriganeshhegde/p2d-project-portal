@@ -1,0 +1,246 @@
+/* Deadline Banner Styles */
+
+.deadline-banner {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 25px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+  border-left: 5px solid;
+  animation: slideIn 0.5s ease-out;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Urgency States */
+.deadline-banner.normal {
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  border-left-color: #4caf50;
+}
+
+.deadline-banner.warning {
+  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+  border-left-color: #ff9800;
+  animation: pulseWarning 2s ease-in-out infinite;
+}
+
+.deadline-banner.critical {
+  background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+  border-left-color: #f44336;
+  animation: pulseCritical 1s ease-in-out infinite;
+}
+
+.deadline-banner.expired {
+  background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+  border-left-color: #9e9e9e;
+  opacity: 0.9;
+}
+
+@keyframes pulseWarning {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.2);
+  }
+  50% {
+    box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
+  }
+}
+
+@keyframes pulseCritical {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+  }
+  50% {
+    box-shadow: 0 8px 24px rgba(244, 67, 54, 0.6);
+  }
+}
+
+/* Icon */
+.deadline-icon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
+
+.deadline-banner.normal .deadline-icon {
+  color: #4caf50;
+}
+
+.deadline-banner.warning .deadline-icon {
+  color: #ff9800;
+  animation: shake 0.5s ease-in-out infinite;
+}
+
+.deadline-banner.critical .deadline-icon {
+  color: #f44336;
+  animation: shake 0.3s ease-in-out infinite;
+}
+
+.deadline-banner.expired .deadline-icon {
+  color: #9e9e9e;
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-10deg);
+  }
+  75% {
+    transform: rotate(10deg);
+  }
+}
+
+/* Content */
+.deadline-content {
+  flex: 1;
+}
+
+.deadline-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.deadline-header h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.deadline-college {
+  padding: 4px 12px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.deadline-details {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  flex-wrap: wrap;
+}
+
+.deadline-date {
+  font-size: 1rem;
+  color: #555;
+}
+
+.deadline-date strong {
+  color: #2c3e50;
+}
+
+.deadline-countdown {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.days-number {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #667eea;
+}
+
+.deadline-banner.warning .days-number {
+  color: #ff9800;
+}
+
+.deadline-banner.critical .days-number {
+  color: #f44336;
+}
+
+.days-label {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 600;
+}
+
+.deadline-expired-message {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  color: #9e9e9e;
+  font-weight: 600;
+}
+
+.deadline-notes {
+  margin-top: 10px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Action Button */
+.deadline-action {
+  flex-shrink: 0;
+}
+
+.btn-upload-now {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.btn-upload-now:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .deadline-banner {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .deadline-header {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .deadline-details {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .deadline-action {
+    width: 100%;
+  }
+  
+  .btn-upload-now {
+    width: 100%;
+  }
+}

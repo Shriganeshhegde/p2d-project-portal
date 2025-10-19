@@ -1,0 +1,173 @@
+╔════════════════════════════════════════════════════════════════╗
+║              GET YOUR HTTPS URLs - QUICK GUIDE                ║
+╚════════════════════════════════════════════════════════════════╝
+
+✅ Both ngrok tunnels are running!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🌐 VIEW YOUR HTTPS URLs
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Open these in your browser:
+
+Frontend Tunnel:
+http://localhost:4040
+
+Backend Tunnel:
+http://localhost:4041
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 WHAT YOU'LL SEE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+At http://localhost:4040:
+┌────────────────────────────────────────────────────┐
+│ ngrok - Status                                     │
+│                                                    │
+│ Session Status: online                             │
+│ Forwarding:                                        │
+│   https://abc123.ngrok.io -> http://localhost:3000│
+│   ^^^^^^^^^^^^^^^^^^^^                             │
+│   COPY THIS! (Frontend URL)                       │
+└────────────────────────────────────────────────────┘
+
+At http://localhost:4041:
+┌────────────────────────────────────────────────────┐
+│ ngrok - Status                                     │
+│                                                    │
+│ Session Status: online                             │
+│ Forwarding:                                        │
+│   https://xyz456.ngrok.io -> http://localhost:5000│
+│   ^^^^^^^^^^^^^^^^^^^^                             │
+│   COPY THIS! (Backend URL)                        │
+└────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 STEP 1: COPY YOUR URLs
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Open http://localhost:4040
+2. Copy the HTTPS URL (e.g., https://abc123.ngrok.io)
+   → This is your FRONTEND URL
+
+3. Open http://localhost:4041
+4. Copy the HTTPS URL (e.g., https://xyz456.ngrok.io)
+   → This is your BACKEND URL
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 STEP 2: UPDATE FRONTEND CONFIG
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Open file:
+C:\Users\RAMACHANDRA S HEGDE\CascadeProjects\windsurf-project\student-project-portal\frontend\.env
+
+Add this line:
+REACT_APP_API_URL=https://xyz456.ngrok.io
+                  ^^^^^^^^^^^^^^^^^^^^^^
+                  (Use YOUR backend URL)
+
+Save the file.
+
+Restart frontend:
+- Press Ctrl+C in frontend terminal
+- Run: npm start
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 STEP 3: ADD TO RAZORPAY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Go to: https://dashboard.razorpay.com/
+
+Navigate to: Settings → Website and App Details
+
+Website URL: https://abc123.ngrok.io
+             ^^^^^^^^^^^^^^^^^^^^^^
+             (Your frontend URL)
+
+Business Name: P2D - Project Print & Delivery
+Business Type: Education
+
+Click Save.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 STEP 4: GET RAZORPAY API KEYS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Go to: https://dashboard.razorpay.com/app/keys
+
+Copy:
+- Key ID (starts with rzp_test_...)
+- Key Secret (click "Generate" if needed)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 STEP 5: UPDATE BACKEND CONFIG
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Open file:
+C:\Users\RAMACHANDRA S HEGDE\CascadeProjects\windsurf-project\student-project-portal\.env
+
+Add these lines:
+RAZORPAY_KEY_ID=rzp_test_YOUR_KEY_ID
+RAZORPAY_KEY_SECRET=YOUR_KEY_SECRET
+ADMIN_KEY=admin_secure_key_123
+
+Save the file.
+
+Restart backend:
+- Press Ctrl+C in backend terminal
+- Run: node server.js
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 STEP 6: TEST PAYMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Open your frontend URL: https://abc123.ngrok.io
+2. Sign up / Login
+3. Upload a project
+4. Choose customization
+5. Proceed to payment
+6. Use test card:
+   Card Number: 4111 1111 1111 1111
+   CVV: 123
+   Expiry: 12/25
+   Name: Test User
+7. Complete payment
+8. Check uploads folder for saved files!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ CHECKLIST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[ ] Open http://localhost:4040 - Copy frontend URL
+[ ] Open http://localhost:4041 - Copy backend URL
+[ ] Update frontend/.env with backend URL
+[ ] Restart frontend (Ctrl+C, npm start)
+[ ] Add frontend URL to Razorpay dashboard
+[ ] Get Razorpay Key ID and Secret
+[ ] Update backend .env with Razorpay keys
+[ ] Restart backend (Ctrl+C, node server.js)
+[ ] Test payment with test card
+[ ] Verify files saved in uploads folder
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔗 QUICK LINKS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Frontend Tunnel: http://localhost:4040
+Backend Tunnel:  http://localhost:4041
+Razorpay Dashboard: https://dashboard.razorpay.com/
+Razorpay API Keys: https://dashboard.razorpay.com/app/keys
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 START HERE: Open http://localhost:4040 and http://localhost:4041

@@ -1,0 +1,160 @@
+╔════════════════════════════════════════════════════════════════╗
+║              DOWNLOAD & INSTALL NGROK - SIMPLE STEPS          ║
+╚════════════════════════════════════════════════════════════════╝
+
+⚠️  ngrok.exe NOT FOUND - You need to download it first!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 STEP 1: DOWNLOAD NGROK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Open your browser
+2. Go to: https://ngrok.com/download
+3. Click "Download for Windows"
+4. File will download: ngrok-v3-stable-windows-amd64.zip
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 STEP 2: EXTRACT THE FILE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Go to your Downloads folder
+2. Find: ngrok-v3-stable-windows-amd64.zip
+3. Right-click → Extract All
+4. Extract to: C:\ngrok\
+5. You should now have: C:\ngrok\ngrok.exe
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 STEP 3: RUN FROM NGROK FOLDER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Open PowerShell and run these commands:
+
+> cd C:\ngrok
+> .\ngrok.exe config add-authtoken 34CX65kCtKX1VDIO1Vcb2YCCiOj_5yVxY6BLkc9uokyJ1n3N7
+
+You should see:
+Authtoken saved to configuration file: C:\Users\...\ngrok.yml
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 STEP 4: TEST IT WORKS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+> cd C:\ngrok
+> .\ngrok.exe version
+
+Should show: ngrok version 3.x.x
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 STEP 5: START YOUR SERVERS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Terminal 1 - Backend:
+> cd "C:\Users\RAMACHANDRA S HEGDE\CascadeProjects\windsurf-project\student-project-portal"
+> node server.js
+
+Terminal 2 - Frontend:
+> cd "C:\Users\RAMACHANDRA S HEGDE\CascadeProjects\windsurf-project\student-project-portal\frontend"
+> npm start
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 STEP 6: START NGROK TUNNELS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Terminal 3 - Frontend Tunnel:
+> cd C:\ngrok
+> .\ngrok.exe http 3000
+
+You'll see:
+Forwarding  https://abc123.ngrok.io -> http://localhost:3000
+            ^^^^^^^^^^^^^^^^^^^^
+            COPY THIS URL!
+
+Terminal 4 - Backend Tunnel:
+> cd C:\ngrok
+> .\ngrok.exe http 5000
+
+You'll see:
+Forwarding  https://xyz456.ngrok.io -> http://localhost:5000
+            ^^^^^^^^^^^^^^^^^^^^
+            COPY THIS URL!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 STEP 7: UPDATE FRONTEND CONFIG
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Open file:
+C:\Users\RAMACHANDRA S HEGDE\CascadeProjects\windsurf-project\student-project-portal\frontend\.env
+
+Add this line:
+REACT_APP_API_URL=https://xyz456.ngrok.io
+                  ^^^^^^^^^^^^^^^^^^^^^^
+                  (Use YOUR backend ngrok URL)
+
+Save and restart frontend (Ctrl+C then npm start)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 STEP 8: ADD TO RAZORPAY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Go to: https://dashboard.razorpay.com/
+
+Settings → Website and App Details:
+Website URL: https://abc123.ngrok.io (YOUR frontend URL)
+
+Settings → API Keys:
+Copy your Key ID and Key Secret
+
+Add to .env file:
+RAZORPAY_KEY_ID=rzp_test_YOUR_KEY_ID
+RAZORPAY_KEY_SECRET=YOUR_KEY_SECRET
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Download: https://ngrok.com/download
+2. Extract to: C:\ngrok\
+3. Configure: cd C:\ngrok && .\ngrok.exe config add-authtoken ...
+4. Start backend: node server.js
+5. Start frontend: npm start
+6. Start ngrok: .\ngrok.exe http 3000 (and 5000)
+7. Copy HTTPS URLs
+8. Update frontend .env
+9. Add to Razorpay
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️  IMPORTANT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+• You MUST download ngrok first
+• Extract to C:\ngrok\ folder
+• Run commands from C:\ngrok\ folder using .\ngrok.exe
+• Keep all 4 terminals open while testing
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔗 DOWNLOAD LINK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+https://ngrok.com/download
+
+Click "Download for Windows" button!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Your authtoken (already have it):
+34CX65kCtKX1VDIO1Vcb2YCCiOj_5yVxY6BLkc9uokyJ1n3N7
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 DOWNLOAD NGROK NOW AND FOLLOW STEPS ABOVE!
