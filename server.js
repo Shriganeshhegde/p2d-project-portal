@@ -7,7 +7,7 @@ const { supabase, supabaseAdmin } = require('./utils/supabase');
 const app = express();
 const server = createServer(app);
 
-// Middleware - Allow localhost and production (updated for deployment)
+// Middleware - Allow localhost and production (updated for Render deployment)
 const allowedOrigins = [
   'http://localhost:3000',
   'https://p2d-project-portal.vercel.app'
@@ -75,8 +75,9 @@ async function testSupabaseConnection() {
 }
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, async () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+const HOST = '0.0.0.0'; // Bind to all interfaces for Railway
+server.listen(PORT, HOST, async () => {
+  console.log(`🚀 Server running on ${HOST}:${PORT}`);
   console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
   
   // Test database connection
