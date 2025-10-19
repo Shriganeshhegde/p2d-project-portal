@@ -128,19 +128,23 @@ router.post('/verify-payment', auth, async (req, res) => {
 
         // Payment verified! Now save the project
         // Note: Using actual database schema columns
+        const projectInsertData = {
+            id: projectId,
+            student_id: userId,
+            title: projectData.title,
+            description: `${projectData.pages} pages, ${projectData.copies} copies, ${projectData.printType} print, ${projectData.bindingType} binding`,
+            department: projectData.department || 'General',
+            semester: projectData.semester || 1,
+            payment_status: 'paid',
+            status: 'pending'
+            // created_at will be set automatically by database
+        };
+
+        console.log('Attempting to insert project:', projectInsertData);
+
         const { data: project, error: projectError } = await supabase
             .from('projects')
-            .insert([{
-                id: projectId,
-                student_id: userId,
-                title: projectData.title,
-                description: `${projectData.pages} pages, ${projectData.copies} copies, ${projectData.printType} print, ${projectData.bindingType} binding`,
-                department: projectData.department || 'General',
-                semester: projectData.semester || 1,
-                payment_status: 'paid',
-                status: 'pending'
-                // created_at will be set automatically by database
-            }])
+            .insert([projectInsertData])
             .select()
             .single();
 
