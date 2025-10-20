@@ -10,6 +10,11 @@ import ProjectCustomization from './pages/ProjectCustomization';
 import Payment from './pages/Payment';
 import OrderTracking from './pages/OrderTracking';
 import YourOrders from './pages/YourOrders';
+import TermsConditions from './pages/TermsConditions';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import ShippingPolicy from './pages/ShippingPolicy';
+import ContactUs from './pages/ContactUs';
+import CancellationRefunds from './pages/CancellationRefunds';
 import './App.css';
 
 // Protected Route Component
@@ -27,6 +32,11 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/terms" element={<TermsConditions />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/shipping" element={<ShippingPolicy />} />
+        <Route path="/contact" element={<ContactUs />} />
+        <Route path="/cancellation-refunds" element={<CancellationRefunds />} />
 
         {/* Protected Routes */}
         <Route 

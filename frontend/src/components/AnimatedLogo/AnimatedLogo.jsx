@@ -33,19 +33,6 @@ const AnimatedLogo = ({ size = 'large', showText = true }) => {
           />
         </div>
         
-        {/* Floating checkmarks */}
-        <div className="floating-report report-1">
-          <span className="delivery-check">✓</span>
-        </div>
-        <div className="floating-report report-2">
-          <span className="delivery-check">✓</span>
-        </div>
-        <div className="floating-report report-3">
-          <span className="delivery-check">✓</span>
-        </div>
-        <div className="floating-report report-4">
-          <span className="delivery-check">✓</span>
-        </div>
       </div>
       
       {showText && (
