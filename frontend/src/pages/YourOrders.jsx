@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { FaCheckCircle, FaClock, FaTimesCircle, FaTruck, FaBox, FaPrint } from 'react-icons/fa';
-import { calculateDeliveryDate, formatDeliveryDate, parseProjectDescription } from '../utils/deliveryCalculator';
+import { calculateDeliveryDate, formatDeliveryDate } from '../utils/deliveryDate';
 import './YourOrders.css';
 
 const YourOrders = () => {
@@ -32,21 +32,7 @@ const YourOrders = () => {
 
       if (response.ok) {
         const data = await response.json();
-        
-        // Enhance each order with parsed details and delivery date
-        const enhancedOrders = data.map(order => {
-          const parsedDetails = parseProjectDescription(order.description);
-          const submissionDate = order.submission_date || new Date().toISOString();
-          const estimatedDelivery = calculateDeliveryDate(submissionDate);
-          
-          return {
-            ...order,
-            ...parsedDetails,
-            estimatedDelivery: estimatedDelivery.toISOString()
-          };
-        });
-        
-        setOrders(enhancedOrders);
+        setOrders(data);
       }
     } catch (error) {
       console.error('Error loading orders:', error);
@@ -149,7 +135,9 @@ const YourOrders = () => {
                 </div>
                 <div className="detail-row">
                   <span className="label">Estimated Delivery:</span>
-                  <span className="value">{formatDeliveryDate(order.estimatedDelivery)}</span>
+                  <span className="value delivery-date">
+                    {formatDeliveryDate(calculateDeliveryDate(order.submission_date))}
+                  </span>
                 </div>
                 <div className="detail-row">
                   <span className="label">Department:</span>

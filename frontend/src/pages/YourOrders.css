@@ -214,6 +214,11 @@
   max-width: 60%;
 }
 
+.detail-row .value.delivery-date {
+  color: #667eea;
+  font-weight: 600;
+}
+
 .badge {
   padding: 4px 12px;
   border-radius: 12px;

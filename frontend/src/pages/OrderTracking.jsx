@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaCheckCircle, FaTruck, FaPrint, FaArrowLeft } from 'react-icons/fa';
-import { calculateDeliveryDate, formatDeliveryDate, parseProjectDescription } from '../utils/deliveryCalculator';
+import { calculateDeliveryDate, formatDeliveryDate, parseProjectDescription } from '../utils/deliveryDate';
 import './OrderTracking.css';
 
 const OrderTracking = () => {
@@ -34,15 +34,13 @@ const OrderTracking = () => {
         const parsedDetails = parseProjectDescription(data.description);
         
         // Calculate delivery date
-        const submissionDate = data.submission_date || new Date().toISOString();
-        const estimatedDelivery = calculateDeliveryDate(submissionDate);
+        const deliveryDate = calculateDeliveryDate(data.submission_date || new Date());
         
         setOrder({
           ...data,
           ...parsedDetails,
           college: userData?.college || data.college || 'N/A',
-          submittedDate: submissionDate,
-          estimatedDelivery: estimatedDelivery.toISOString()
+          estimatedDelivery: deliveryDate
         });
       }
     } catch (error) {
@@ -142,7 +140,7 @@ const OrderTracking = () => {
           </div>
           <div className="summary-item">
             <span className="label">Paper Type:</span>
-            <span className="value">A4</span>
+            <span className="value">A4 Paper</span>
           </div>
           <div className="summary-item">
             <span className="label">Binding Type:</span>
@@ -160,7 +158,7 @@ const OrderTracking = () => {
           </div>
           <div className="summary-item">
             <span className="label">Submitted On:</span>
-            <span className="value">{formatDeliveryDate(order.submittedDate)}</span>
+            <span className="value">{formatDeliveryDate(order.submission_date)}</span>
           </div>
           <div className="summary-item">
             <span className="label">Payment Status:</span>
