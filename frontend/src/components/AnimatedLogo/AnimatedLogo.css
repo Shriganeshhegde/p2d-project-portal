@@ -27,21 +27,21 @@
 /* Logo Wrapper */
 .logo-wrapper {
   position: relative;
-  width: 250px;
-  height: 250px;
+  width: 280px;
+  height: 280px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .animated-logo-container.small .logo-wrapper {
-  width: 100px;
-  height: 100px;
+  width: 130px;
+  height: 130px;
 }
 
 .animated-logo-container.medium .logo-wrapper {
-  width: 180px;
-  height: 180px;
+  width: 200px;
+  height: 200px;
 }
 
 /* Animated Rings */
@@ -160,7 +160,7 @@
 }
 
 .report-icon {
-  font-size: 2rem;
+  display: none; /* Hide paper/chart icons */
 }
 
 .delivery-check {

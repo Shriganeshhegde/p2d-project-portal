@@ -511,7 +511,7 @@
   }
 
   .sidebar-logout {
-    display: none; /* Hide logout from bottom nav */
+    display: none !important; /* Hide logout from bottom nav */
   }
 
   .dashboard-main {
