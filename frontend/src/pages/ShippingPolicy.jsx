@@ -17,7 +17,7 @@ const ShippingPolicy = () => {
         <section>
           <h2>1. Delivery Coverage</h2>
           <p>
-            P2D currently delivers to colleges and educational institutions in Bangalore. We are continuously expanding our delivery network to serve more locations.
+            P2D Solutions currently delivers to colleges and educational institutions in Bangalore. We are continuously expanding our delivery network to serve more locations.
           </p>
         </section>
 

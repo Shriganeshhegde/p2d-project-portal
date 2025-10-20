@@ -17,14 +17,14 @@ const TermsConditions = () => {
         <section>
           <h2>1. Acceptance of Terms</h2>
           <p>
-            By accessing and using P2D (Print to Doorstep) services, you accept and agree to be bound by the terms and provisions of this agreement. If you do not agree to these terms, please do not use our services.
+            By accessing and using P2D (Project to Door) services by P2D Solutions, you accept and agree to be bound by the terms and provisions of this agreement. If you do not agree to these terms, please do not use our services.
           </p>
         </section>
 
         <section>
           <h2>2. Service Description</h2>
           <p>
-            P2D provides project printing, binding, and delivery services to students. Our services include:
+            P2D Solutions provides project printing, binding, and delivery services to students. Our services include:
           </p>
           <ul>
             <li>Document printing (black & white and color)</li>
@@ -98,7 +98,7 @@ const TermsConditions = () => {
         <section>
           <h2>9. Limitation of Liability</h2>
           <p>
-            P2D shall not be liable for any indirect, incidental, special, or consequential damages arising from the use of our services. Our liability is limited to the amount paid for the specific order in question.
+            P2D Solutions shall not be liable for any indirect, incidental, special, or consequential damages arising from the use of our services. Our liability is limited to the amount paid for the specific order in question.
           </p>
         </section>
 

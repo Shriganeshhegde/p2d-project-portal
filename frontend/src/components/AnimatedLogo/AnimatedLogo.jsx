@@ -37,8 +37,8 @@ const AnimatedLogo = ({ size = 'large', showText = true }) => {
       
       {showText && (
         <div className="logo-text">
-          <h1 className="logo-title">Student Project Portal</h1>
-          <p className="logo-subtitle">Print & Bind Your Projects</p>
+          <h1 className="logo-title">P2D - Project to Door</h1>
+          <p className="logo-subtitle">by P2D Solutions</p>
         </div>
       )}
     </div>

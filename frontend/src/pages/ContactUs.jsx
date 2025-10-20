@@ -38,6 +38,7 @@ const ContactUs = () => {
 
       <div className="policy-content">
         <h1>Contact Us</h1>
+        <p className="subtitle">P2D Solutions - Project to Door</p>
         <p className="subtitle">We're here to help! Reach out to us for any queries or support.</p>
 
         <div className="contact-grid">

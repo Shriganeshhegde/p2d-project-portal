@@ -33,6 +33,13 @@
   margin: 8px 0;
 }
 
+.footer-brand {
+  color: #667eea !important;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin: 5px 0 15px 0 !important;
+}
+
 .footer-contact {
   margin-top: 20px;
   display: flex;

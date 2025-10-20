@@ -8,7 +8,8 @@ const Footer = () => {
     <footer className="app-footer">
       <div className="footer-content">
         <div className="footer-section">
-          <h3>P2D - Print to Doorstep</h3>
+          <h3>P2D - Project to Door</h3>
+          <p className="footer-brand">by P2D Solutions</p>
           <p>Professional project printing and binding services delivered to your college.</p>
           <div className="footer-contact">
             <div className="footer-contact-item">
@@ -49,7 +50,7 @@ const Footer = () => {
       </div>
 
       <div className="footer-bottom">
-        <p>&copy; {new Date().getFullYear()} P2D - Print to Doorstep. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} P2D Solutions - Project to Door. All rights reserved.</p>
       </div>
     </footer>
   );
