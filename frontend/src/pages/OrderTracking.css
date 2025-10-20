@@ -78,6 +78,10 @@
   gap: 8px;
 }
 
+.summary-item.full-width {
+  grid-column: 1 / -1;
+}
+
 .summary-item .label {
   font-size: 0.9rem;
   color: #7f8c8d;

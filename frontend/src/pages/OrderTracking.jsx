@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaCheckCircle, FaTruck, FaPrint, FaArrowLeft } from 'react-icons/fa';
+import { calculateDeliveryDate, formatDeliveryDate, parseProjectDescription } from '../utils/deliveryCalculator';
 import './OrderTracking.css';
 
 const OrderTracking = () => {
@@ -17,6 +18,7 @@ const OrderTracking = () => {
   const loadOrderDetails = async () => {
     try {
       const token = localStorage.getItem('token');
+      const userData = JSON.parse(localStorage.getItem('user'));
       const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
       
       const response = await fetch(`${apiUrl}/api/projects/${projectId}`, {
@@ -27,39 +29,24 @@ const OrderTracking = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setOrder(data);
-      } else {
-        // Demo order for testing
+        
+        // Parse description to extract details
+        const parsedDetails = parseProjectDescription(data.description);
+        
+        // Calculate delivery date
+        const submissionDate = data.submission_date || new Date().toISOString();
+        const estimatedDelivery = calculateDeliveryDate(submissionDate);
+        
         setOrder({
-          id: projectId,
-          title: 'Machine Learning Project',
-          status: 'printing',
-          payment_status: 'paid',
-          copies: 2,
-          pages: 45,
-          printType: 'black-white',
-          paperType: 'normal-a4',
-          bindingType: 'spiral',
-          bindingColor: 'blue',
-          college: 'RV College of Engineering',
-          submittedDate: new Date().toISOString(),
-          estimatedDelivery: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
+          ...data,
+          ...parsedDetails,
+          college: userData?.college || data.college || 'N/A',
+          submittedDate: submissionDate,
+          estimatedDelivery: estimatedDelivery.toISOString()
         });
       }
     } catch (error) {
       console.error('Error loading order:', error);
-      // Demo order
-      setOrder({
-        id: projectId,
-        title: 'Machine Learning Project',
-        status: 'printing',
-        payment_status: 'paid',
-        copies: 2,
-        pages: 45,
-        college: 'RV College of Engineering',
-        submittedDate: new Date().toISOString(),
-        estimatedDelivery: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
-      });
     } finally {
       setLoading(false);
     }
@@ -142,28 +129,38 @@ const OrderTracking = () => {
             <span className="value">{order.title}</span>
           </div>
           <div className="summary-item">
+            <span className="label">Total Pages:</span>
+            <span className="value">{order.pages || 'N/A'}</span>
+          </div>
+          <div className="summary-item">
             <span className="label">Number of Copies:</span>
             <span className="value">{order.copies || 1}</span>
           </div>
           <div className="summary-item">
-            <span className="label">Total Pages:</span>
-            <span className="value">{order.pages}</span>
-          </div>
-          <div className="summary-item">
             <span className="label">Print Type:</span>
-            <span className="value">{order.printType === 'black-white' ? 'Black & White' : 'Color'}</span>
+            <span className="value">{order.printType || 'N/A'}</span>
           </div>
           <div className="summary-item">
             <span className="label">Paper Type:</span>
-            <span className="value">{order.paperType === 'normal-a4' ? 'Normal A4' : 'Bond Paper'}</span>
+            <span className="value">A4</span>
           </div>
           <div className="summary-item">
-            <span className="label">Binding:</span>
-            <span className="value">{order.bindingType} - {order.bindingColor}</span>
+            <span className="label">Binding Type:</span>
+            <span className="value">{order.bindingType || 'N/A'}</span>
           </div>
-          <div className="summary-item">
+          {order.bindingColor && (
+            <div className="summary-item">
+              <span className="label">Binding Color:</span>
+              <span className="value">{order.bindingColor}</span>
+            </div>
+          )}
+          <div className="summary-item full-width">
             <span className="label">Delivery To:</span>
             <span className="value">{order.college}</span>
+          </div>
+          <div className="summary-item">
+            <span className="label">Submitted On:</span>
+            <span className="value">{formatDeliveryDate(order.submittedDate)}</span>
           </div>
           <div className="summary-item">
             <span className="label">Payment Status:</span>

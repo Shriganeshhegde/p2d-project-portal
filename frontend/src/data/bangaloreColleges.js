@@ -5,6 +5,7 @@ export const bangaloreColleges = [
   'MS Ramaiah Institute of Technology',
   'PES University',
   'Dayananda Sagar College of Engineering',
+  'Dayananda Sagar Academy of Technology and Management',
   'BMS Institute of Technology',
   'Ramaiah University of Applied Sciences',
   'Christ University',
