@@ -43,11 +43,9 @@ const Login = () => {
 
   return (
     <div className="auth-container">
-      <AnimatedLogo size="medium" showText={false} />
-      
       <div className="auth-card">
         <div className="auth-header">
-          <h1>P2D</h1>
+          <AnimatedLogo size="small" showText={false} />
           <h2>Welcome Back!</h2>
           <p>Login to access your projects</p>
         </div>

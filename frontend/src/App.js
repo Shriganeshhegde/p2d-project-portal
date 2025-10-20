@@ -9,6 +9,7 @@ import UploadProject from './pages/UploadProject';
 import ProjectCustomization from './pages/ProjectCustomization';
 import Payment from './pages/Payment';
 import OrderTracking from './pages/OrderTracking';
+import YourOrders from './pages/YourOrders';
 import './App.css';
 
 // Protected Route Component
@@ -81,6 +82,22 @@ function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/your-orders" 
+          element={
+            <ProtectedRoute>
+              <YourOrders />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/track-order" 
+          element={
+            <ProtectedRoute>
+              <YourOrders />
             </ProtectedRoute>
           } 
         />

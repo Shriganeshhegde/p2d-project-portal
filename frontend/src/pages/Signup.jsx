@@ -129,11 +129,9 @@ const Signup = () => {
 
   return (
     <div className="auth-container">
-      <AnimatedLogo size="medium" showText={false} />
-      
       <div className="auth-card signup-card">
         <div className="auth-header">
-          <h1>P2D</h1>
+          <AnimatedLogo size="small" showText={false} />
           <h2>Create Your Account</h2>
           <p>Join us to submit and track your projects</p>
         </div>
