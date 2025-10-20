@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaUser, FaEnvelope, FaIdCard, FaUniversity, FaGraduationCap, FaBook, FaPhone, FaMapMarkerAlt, FaEdit, FaSave, FaTimes } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaIdCard, FaUniversity, FaGraduationCap, FaBook, FaPhone, FaMapMarkerAlt, FaEdit, FaSave, FaTimes, FaSignOutAlt } from 'react-icons/fa';
 import './Profile.css';
 
 const Profile = () => {
@@ -73,6 +73,12 @@ const Profile = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/login');
   };
 
   const handleCancel = () => {
@@ -283,6 +289,13 @@ const Profile = () => {
               />
             </div>
           </div>
+        </div>
+
+        {/* Logout Section */}
+        <div className="profile-section logout-section">
+          <button onClick={handleLogout} className="btn-logout">
+            <FaSignOutAlt /> Logout
+          </button>
         </div>
       </div>
     </div>

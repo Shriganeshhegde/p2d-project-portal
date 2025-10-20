@@ -103,14 +103,6 @@ const DeadlineBanner = ({ collegeName, department }) => {
           </div>
         )}
       </div>
-      
-      {!deadlineInfo.isExpired && deadlineInfo.daysRemaining <= 7 && (
-        <div className="deadline-action">
-          <button className="btn-upload-now">
-            Upload Now
-          </button>
-        </div>
-      )}
     </div>
   );
 };

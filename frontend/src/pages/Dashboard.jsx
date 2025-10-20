@@ -137,18 +137,18 @@ const Dashboard = () => {
 
         <nav className="sidebar-nav">
           <Link to="/dashboard" className="nav-item active">
-            <FaFileAlt /> Dashboard
+            <FaFileAlt /> <span>Dashboard</span>
           </Link>
           {canUpload && (
             <Link to="/upload" className="nav-item">
-              <FaUpload /> Upload Project
+              <FaUpload /> <span>Upload</span>
             </Link>
           )}
-          <Link to="/payments" className="nav-item">
-            <FaMoneyBillWave /> Payments
+          <Link to="/track-order" className="nav-item">
+            <FaMoneyBillWave /> <span>Your Orders</span>
           </Link>
           <Link to="/profile" className="nav-item">
-            <FaUser /> Profile
+            <FaUser /> <span>Profile</span>
           </Link>
         </nav>
 

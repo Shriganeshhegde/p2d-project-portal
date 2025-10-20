@@ -200,6 +200,34 @@
   min-height: 80px;
 }
 
+/* Logout Section */
+.logout-section {
+  text-align: center;
+  padding: 30px;
+  margin-top: 20px;
+}
+
+.btn-logout {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 14px 40px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s;
+}
+
+.btn-logout:hover {
+  background: #c0392b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .profile-container {
@@ -229,5 +257,10 @@
 
   .profile-section {
     padding: 20px;
+  }
+
+  .btn-logout {
+    width: 100%;
+    justify-content: center;
   }
 }
