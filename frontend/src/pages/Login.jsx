@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AnimatedLogo from '../components/AnimatedLogo';
+import Footer from '../components/Footer/Footer';
 import './Auth.css';
 
 const Login = () => {
@@ -95,6 +96,8 @@ const Login = () => {
           <p>Don't have an account? <Link to="/signup">Sign Up</Link></p>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 };

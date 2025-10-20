@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AnimatedLogo from '../components/AnimatedLogo';
 import TermsAndConditions from '../components/TermsAndConditions/TermsAndConditions';
+import Footer from '../components/Footer/Footer';
 import { bangaloreColleges } from '../data/bangaloreColleges';
 import './Auth.css';
 
@@ -298,14 +299,11 @@ const Signup = () => {
         </div>
       </div>
 
-      <TermsAndConditions
-        isOpen={showTerms}
-        onClose={() => setShowTerms(false)}
-        onAccept={() => {
-          setAcceptedTerms(true);
-          setShowTerms(false);
-        }}
-      />
+      <Footer />
+
+      {showTerms && (
+        <TermsAndConditions onClose={() => setShowTerms(false)} />
+      )}
     </div>
   );
 };
