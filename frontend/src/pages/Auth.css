@@ -178,10 +178,53 @@
   font-size: 0.95rem;
 }
 
+/* Terms and Conditions Checkbox */
+.terms-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.terms-checkbox input[type="checkbox"] {
+  margin-top: 3px;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.terms-checkbox label {
+  font-size: 14px;
+  color: #666;
+  cursor: pointer;
+  line-height: 1.5;
+}
+
+.terms-link {
+  color: #667eea;
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.terms-link:hover {
+  color: #764ba2;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
+  .auth-container {
+    padding: 10px;
+    align-items: flex-start;
+    padding-top: 20px;
+  }
+
   .auth-card {
     padding: 30px 20px;
+  }
+
+  .auth-header {
+    margin-bottom: 20px;
   }
 
   .auth-header h1 {
@@ -198,5 +241,9 @@
 
   .signup-card {
     max-width: 100%;
+  }
+
+  .logo-container {
+    margin-bottom: 20px;
   }
 }

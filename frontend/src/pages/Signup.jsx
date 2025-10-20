@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import AnimatedLogo from '../components/AnimatedLogo';
+import TermsAndConditions from '../components/TermsAndConditions/TermsAndConditions';
 import { bangaloreColleges } from '../data/bangaloreColleges';
 import './Auth.css';
 
@@ -21,6 +22,8 @@ const Signup = () => {
   const [showCustomCollege, setShowCustomCollege] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
 
   const { name, email, password, confirmPassword, studentId, college, customCollege, department, semester } = formData;
 
@@ -52,6 +55,11 @@ const Signup = () => {
 
     if (password.length < 6) {
       setError('Password must be at least 6 characters');
+      return;
+    }
+
+    if (!acceptedTerms) {
+      setError('Please accept the Terms and Conditions to continue');
       return;
     }
 
@@ -264,6 +272,24 @@ const Signup = () => {
             </div>
           </div>
 
+          <div className="terms-checkbox">
+            <input
+              type="checkbox"
+              id="terms"
+              checked={acceptedTerms}
+              onChange={(e) => setAcceptedTerms(e.target.checked)}
+            />
+            <label htmlFor="terms">
+              I accept the{' '}
+              <span 
+                className="terms-link" 
+                onClick={() => setShowTerms(true)}
+              >
+                Terms and Conditions
+              </span>
+            </label>
+          </div>
+
           <button type="submit" className="btn-primary" disabled={loading}>
             {loading ? 'Creating Account...' : 'Sign Up'}
           </button>
@@ -273,6 +299,15 @@ const Signup = () => {
           <p>Already have an account? <Link to="/login">Login</Link></p>
         </div>
       </div>
+
+      <TermsAndConditions
+        isOpen={showTerms}
+        onClose={() => setShowTerms(false)}
+        onAccept={() => {
+          setAcceptedTerms(true);
+          setShowTerms(false);
+        }}
+      />
     </div>
   );
 };

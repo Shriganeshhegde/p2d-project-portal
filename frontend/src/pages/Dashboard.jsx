@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { FaUpload, FaFileAlt, FaMoneyBillWave, FaUser, FaSignOutAlt, FaCheckCircle, FaClock, FaTimesCircle } from 'react-icons/fa';
 import DeadlineBanner from '../components/DeadlineBanner';
+import OnboardingPopup from '../components/OnboardingPopup/OnboardingPopup';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -16,6 +17,7 @@ const Dashboard = () => {
   });
   const [deadlineInfo, setDeadlineInfo] = useState(null);
   const [canUpload, setCanUpload] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
     // Check if user is logged in
@@ -30,6 +32,13 @@ const Dashboard = () => {
     if (userData) {
       const parsedUser = JSON.parse(userData);
       setUser(parsedUser);
+      
+      // Check if this is first time user
+      const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+      if (!hasSeenOnboarding) {
+        setShowOnboarding(true);
+        localStorage.setItem('hasSeenOnboarding', 'true');
+      }
       
       // Check deadline for user's college
       if (parsedUser.college) {
@@ -267,6 +276,11 @@ const Dashboard = () => {
           )}
         </div>
       </main>
+
+      <OnboardingPopup
+        isOpen={showOnboarding}
+        onClose={() => setShowOnboarding(false)}
+      />
     </div>
   );
 };

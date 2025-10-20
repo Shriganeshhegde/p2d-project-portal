@@ -1,0 +1,170 @@
+.terms-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.terms-modal {
+  background: white;
+  border-radius: 12px;
+  max-width: 700px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.terms-header {
+  padding: 24px;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.terms-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 24px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 32px;
+  color: #666;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.close-btn:hover {
+  color: #333;
+}
+
+.terms-content {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.terms-content h3 {
+  color: #2563eb;
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.terms-content section {
+  margin-bottom: 24px;
+}
+
+.terms-content h4 {
+  color: #333;
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+
+.terms-content p {
+  color: #666;
+  line-height: 1.6;
+  margin: 0 0 12px 0;
+}
+
+.terms-content ul {
+  margin: 0;
+  padding-left: 24px;
+  color: #666;
+  line-height: 1.8;
+}
+
+.terms-content li {
+  margin-bottom: 8px;
+}
+
+.terms-content strong {
+  color: #333;
+  font-weight: 600;
+}
+
+.terms-footer {
+  padding: 20px 24px;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.terms-footer button {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.btn-secondary:hover {
+  background: #e5e7eb;
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover {
+  background: #1d4ed8;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .terms-modal-overlay {
+    padding: 10px;
+  }
+
+  .terms-modal {
+    max-height: 95vh;
+  }
+
+  .terms-header {
+    padding: 16px;
+  }
+
+  .terms-header h2 {
+    font-size: 20px;
+  }
+
+  .terms-content {
+    padding: 16px;
+  }
+
+  .terms-footer {
+    padding: 16px;
+    flex-direction: column;
+  }
+
+  .terms-footer button {
+    width: 100%;
+  }
+}
