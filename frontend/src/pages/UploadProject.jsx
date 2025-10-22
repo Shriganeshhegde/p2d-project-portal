@@ -384,6 +384,20 @@ const UploadProject = () => {
               Upload your project report or scan documents using your camera
             </p>
             
+            {/* PDF Naming Instruction */}
+            <div className="pdf-naming-instruction">
+              <div className="instruction-icon">📝</div>
+              <div className="instruction-content">
+                <h4>Important: Rename Your PDF File</h4>
+                <p>Before uploading, please rename your PDF file as:</p>
+                <div className="naming-format">
+                  <code>YourName_CollegeName_Department.pdf</code>
+                </div>
+                <p className="example">Example: <strong>RameshKumar_DSATMBangalore_CSE.pdf</strong></p>
+                <p className="note">This helps us identify and process your project faster!</p>
+              </div>
+            </div>
+            
             {/* Internship Certificate Checkbox */}
             <div className="certificate-check">
               <label className="checkbox-label">

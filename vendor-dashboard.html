@@ -122,65 +122,157 @@
         }
 
         .submission-card {
-            background: #f8f9fa;
+            background: white;
+            padding: 0;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: 2px solid #e0e0e0;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             padding: 20px;
-            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h3 {
+            color: white;
+            margin: 0;
+            font-size: 1.3rem;
+        }
+
+        .submission-details {
+            padding: 25px;
+        }
+
+        .detail-section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .detail-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .detail-section h4 {
+            color: #667eea;
+            font-size: 1.1rem;
             margin-bottom: 15px;
-            border-left: 4px solid #667eea;
+            font-weight: 600;
         }
 
-        .submission-card h3 {
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .submission-info {
+        .detail-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px;
-            margin-bottom: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
         }
 
-        .info-item {
-            color: #666;
-            font-size: 0.9rem;
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
         }
 
-        .info-item strong {
+        .detail-item .label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .detail-item .value {
             color: #333;
+            font-weight: 500;
+            text-align: right;
+        }
+
+        .detail-item .value.highlight {
+            color: #667eea;
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+
+        .detail-item .value.price {
+            color: #28a745;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .detail-item .value.filename {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #764ba2;
         }
 
         .badge {
             display: inline-block;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 700;
         }
 
         .badge-paid {
-            background: #d4edda;
-            color: #155724;
+            background: #28a745;
+            color: white;
         }
 
         .badge-pending {
-            background: #fff3cd;
-            color: #856404;
+            background: #ffc107;
+            color: #333;
+        }
+
+        .card-actions {
+            padding: 20px;
+            background: #f8f9fa;
+            display: flex;
+            gap: 15px;
+            border-top: 2px solid #e0e0e0;
         }
 
         .btn-download {
             background: #28a745;
             color: white;
-            padding: 8px 16px;
-            border-radius: 6px;
+            padding: 12px 24px;
+            border-radius: 8px;
             text-decoration: none;
-            font-size: 0.9rem;
+            font-size: 1rem;
+            font-weight: 600;
             display: inline-block;
-            margin-right: 10px;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
         }
 
         .btn-download:hover {
             background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-details {
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-details:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
         .hidden {
@@ -356,38 +448,111 @@
 
                 submissionsList.innerHTML = data.submissions.map(sub => `
                     <div class="submission-card">
-                        <h3>${sub.studentName || 'Unknown'}</h3>
-                        <div class="submission-info">
-                            <div class="info-item">
-                                <strong>College:</strong> ${sub.college || 'N/A'}
+                        <div class="card-header">
+                            <h3>📄 ${sub.projectTitle || 'Untitled Project'}</h3>
+                            <span class="badge ${sub.paymentStatus === 'paid' ? 'badge-paid' : 'badge-pending'}">
+                                ${sub.paymentStatus === 'paid' ? '✓ PAID' : '⏳ PENDING'}
+                            </span>
+                        </div>
+                        
+                        <div class="submission-details">
+                            <!-- Student Information -->
+                            <div class="detail-section">
+                                <h4>👤 Student Information</h4>
+                                <div class="detail-grid">
+                                    <div class="detail-item">
+                                        <span class="label">Name:</span>
+                                        <span class="value">${sub.studentName || 'N/A'}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="label">Email:</span>
+                                        <span class="value">${sub.email || 'N/A'}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="label">Phone:</span>
+                                        <span class="value">${sub.phone || 'N/A'}</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="info-item">
-                                <strong>Project:</strong> ${sub.projectTitle || 'N/A'}
+                            
+                            <!-- College Information -->
+                            <div class="detail-section">
+                                <h4>🏫 College Information</h4>
+                                <div class="detail-grid">
+                                    <div class="detail-item">
+                                        <span class="label">College:</span>
+                                        <span class="value">${sub.college || 'N/A'}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="label">Department:</span>
+                                        <span class="value">${sub.department || 'N/A'}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="label">Semester:</span>
+                                        <span class="value">${sub.semester || 'N/A'}</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="info-item">
-                                <strong>Pages:</strong> ${sub.totalPages || 0}
+                            
+                            <!-- Printing Specifications -->
+                            <div class="detail-section">
+                                <h4>🖨️ Printing Specifications</h4>
+                                <div class="detail-grid">
+                                    <div class="detail-item">
+                                        <span class="label">Total Pages:</span>
+                                        <span class="value highlight">${sub.totalPages || 0} pages</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="label">Number of Copies:</span>
+                                        <span class="value highlight">${sub.copies || 1} copies</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="label">Print Type:</span>
+                                        <span class="value">${sub.printType || 'N/A'}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="label">Paper Type:</span>
+                                        <span class="value">${sub.paperType || 'N/A'}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="label">Binding Type:</span>
+                                        <span class="value">${sub.bindingType || 'N/A'}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="label">Binding Color:</span>
+                                        <span class="value">${sub.bindingColor || 'N/A'}</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="info-item">
-                                <strong>Copies:</strong> ${sub.copies || 1}
-                            </div>
-                            <div class="info-item">
-                                <strong>Payment:</strong> 
-                                <span class="badge ${sub.paymentStatus === 'paid' ? 'badge-paid' : 'badge-pending'}">
-                                    ${sub.paymentStatus || 'pending'}
-                                </span>
-                            </div>
-                            <div class="info-item">
-                                <strong>Submitted:</strong> ${sub.submittedDate ? new Date(sub.submittedDate).toLocaleDateString() : 'N/A'}
+                            
+                            <!-- Order Information -->
+                            <div class="detail-section">
+                                <h4>📦 Order Information</h4>
+                                <div class="detail-grid">
+                                    <div class="detail-item">
+                                        <span class="label">Submitted Date:</span>
+                                        <span class="value">${sub.submittedDate ? new Date(sub.submittedDate).toLocaleString() : 'N/A'}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="label">Total Amount:</span>
+                                        <span class="value price">₹${sub.totalAmount || 0}</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="label">PDF File Name:</span>
+                                        <span class="value filename">${sub.fileName || 'N/A'}</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div>
+                        
+                        <div class="card-actions">
                             <a href="${API_URL}/download-folder/${sub.folderName}" 
                                class="btn-download"
                                onclick="return downloadFolder('${sub.folderName}')">
-                                📥 Download Folder
+                                📥 Download Project Files
                             </a>
-                            <button class="btn-download" onclick="viewDetails('${sub.folderName}')">
-                                👁️ View Details
+                            <button class="btn-details" onclick="viewFullDetails('${sub.folderName}')">
+                                👁️ View Full Details
                             </button>
                         </div>
                     </div>
@@ -404,7 +569,7 @@
             return false;
         }
 
-        function viewDetails(folderName) {
+        function viewFullDetails(folderName) {
             fetch(`${API_URL}/submission/${folderName}`, {
                 headers: {
                     'x-vendor-password': vendorPassword
@@ -414,26 +579,52 @@
             .then(data => {
                 const details = data.studentDetails;
                 if (details) {
-                    alert(`
-Student: ${details.studentInfo.name}
-Email: ${details.studentInfo.email}
-Phone: ${details.studentInfo.phone || 'N/A'}
-College: ${details.studentInfo.college}
-Department: ${details.studentInfo.department}
+                    const detailsText = `
+═══════════════════════════════════════
+📋 COMPLETE ORDER DETAILS
+═══════════════════════════════════════
 
-Project: ${details.projectInfo.title}
-Pages: ${details.projectInfo.totalPages}
-Copies: ${details.printingDetails.copies}
-Binding: ${details.printingDetails.bindingType}
-Color: ${details.printingDetails.bindingColor}
+👤 STUDENT INFORMATION:
+   Name: ${details.studentInfo.name}
+   Email: ${details.studentInfo.email}
+   Phone: ${details.studentInfo.phone || 'N/A'}
+   Student ID: ${details.studentInfo.studentId || 'N/A'}
 
-Payment: ₹${details.pricing.totalAmount} (${details.pricing.paymentStatus})
-                    `);
+🏫 COLLEGE INFORMATION:
+   College: ${details.studentInfo.college}
+   Department: ${details.studentInfo.department}
+   Semester: ${details.projectInfo.semester || 'N/A'}
+
+📄 PROJECT DETAILS:
+   Title: ${details.projectInfo.title}
+   Description: ${details.projectInfo.description || 'N/A'}
+   Subject: ${details.projectInfo.subject || 'N/A'}
+
+🖨️ PRINTING SPECIFICATIONS:
+   Total Pages: ${details.projectInfo.totalPages}
+   Number of Copies: ${details.printingDetails.copies}
+   Print Type: ${details.printingDetails.printType}
+   Paper Type: ${details.printingDetails.paperType}
+   Binding Type: ${details.printingDetails.bindingType}
+   Binding Color: ${details.printingDetails.bindingColor}
+
+💰 PAYMENT INFORMATION:
+   Total Amount: ₹${details.pricing.totalAmount}
+   Payment Status: ${details.pricing.paymentStatus}
+   Payment ID: ${details.pricing.paymentId || 'N/A'}
+
+📦 DELIVERY:
+   College: ${details.studentInfo.college}
+   Department: ${details.studentInfo.department}
+
+═══════════════════════════════════════
+                    `;
+                    alert(detailsText);
                 }
             })
             .catch(error => {
                 console.error('Error loading details:', error);
-                alert('Error loading details');
+                alert('Error loading details. Please try again.');
             });
         }
 
