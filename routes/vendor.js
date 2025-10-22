@@ -30,16 +30,37 @@ router.get('/submissions', vendorAuth, async (req, res) => {
       folders.map(async (folderName) => {
         try {
           const contents = await getStudentFolderContents(folderName);
+          const details = contents.studentDetails || {};
+          
           return {
             folderName,
-            studentName: contents.studentDetails?.studentInfo?.name || 'Unknown',
-            college: contents.studentDetails?.studentInfo?.college || 'Unknown',
-            projectTitle: contents.studentDetails?.projectInfo?.title || 'Unknown',
-            submittedDate: contents.studentDetails?.projectInfo?.submittedDate,
-            totalPages: contents.studentDetails?.projectInfo?.totalPages,
-            copies: contents.studentDetails?.printingDetails?.copies,
-            paymentStatus: contents.studentDetails?.pricing?.paymentStatus,
-            fileCount: contents.files.length
+            // Student Information
+            studentName: details.studentInfo?.name || 'Unknown',
+            email: details.studentInfo?.email || 'N/A',
+            phone: details.studentInfo?.phone || 'N/A',
+            
+            // College Information
+            college: details.studentInfo?.college || 'Unknown',
+            department: details.studentInfo?.department || 'N/A',
+            semester: details.projectInfo?.semester || 'N/A',
+            
+            // Project Information
+            projectTitle: details.projectInfo?.title || 'Unknown',
+            submittedDate: details.projectInfo?.submittedDate,
+            
+            // Printing Specifications
+            totalPages: details.projectInfo?.totalPages || 0,
+            copies: details.printingDetails?.copies || 1,
+            printType: details.printingDetails?.printType || 'N/A',
+            paperType: details.printingDetails?.paperType || 'N/A',
+            bindingType: details.printingDetails?.bindingType || 'N/A',
+            bindingColor: details.printingDetails?.bindingColor || 'N/A',
+            
+            // Payment & Order Information
+            paymentStatus: details.pricing?.paymentStatus || 'pending',
+            totalAmount: details.pricing?.totalAmount || 0,
+            fileName: contents.files?.[0] || 'N/A',
+            fileCount: contents.files?.length || 0
           };
         } catch (err) {
           return {
@@ -187,18 +208,21 @@ router.put('/update-status/:projectId', vendorAuth, async (req, res) => {
 // Get statistics for vendor dashboard
 router.get('/stats', vendorAuth, async (req, res) => {
   try {
-    const { data: allProjects } = await supabase
+    const { data: allProjects, error } = await supabase
       .from('projects')
       .select('status, payment_status, total_amount');
     
+    // Handle null or error cases
+    const projects = allProjects || [];
+    
     const stats = {
-      total: allProjects.length,
-      pending: allProjects.filter(p => p.status === 'pending').length,
-      inProgress: allProjects.filter(p => p.status === 'in-progress').length,
-      completed: allProjects.filter(p => p.status === 'completed').length,
-      paid: allProjects.filter(p => p.payment_status === 'paid').length,
-      unpaid: allProjects.filter(p => p.payment_status === 'pending').length,
-      totalRevenue: allProjects
+      total: projects.length,
+      pending: projects.filter(p => p.status === 'pending').length,
+      inProgress: projects.filter(p => p.status === 'in-progress').length,
+      completed: projects.filter(p => p.status === 'completed').length,
+      paid: projects.filter(p => p.payment_status === 'paid').length,
+      unpaid: projects.filter(p => p.payment_status === 'pending').length,
+      totalRevenue: projects
         .filter(p => p.payment_status === 'paid')
         .reduce((sum, p) => sum + (p.total_amount || 0), 0)
     };
