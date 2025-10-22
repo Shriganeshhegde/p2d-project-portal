@@ -275,6 +275,82 @@
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
+        /* Bulk Download Section */
+        .bulk-download-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .bulk-download-section h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .bulk-download-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #555;
+            font-size: 0.95rem;
+        }
+
+        .filter-select {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .filter-select:hover {
+            border-color: #667eea;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-bulk-download {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-bulk-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-bulk-download:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .hidden {
             display: none;
         }
@@ -331,6 +407,34 @@
 
         <div id="dashboardSection" class="hidden">
             <div class="stats-grid" id="statsGrid"></div>
+            
+            <!-- Bulk Download Section -->
+            <div class="bulk-download-section">
+                <h2>📦 Bulk Download</h2>
+                <p style="color: #666; margin-bottom: 15px;">Download all PDFs from a specific college or department as one ZIP file</p>
+                
+                <div class="bulk-download-controls">
+                    <div class="filter-group">
+                        <label for="collegeFilter">Download by College:</label>
+                        <select id="collegeFilter" class="filter-select">
+                            <option value="">Select College...</option>
+                        </select>
+                        <button class="btn-bulk-download" onclick="bulkDownload('college')">
+                            📥 Download College PDFs
+                        </button>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="departmentFilter">Download by Department:</label>
+                        <select id="departmentFilter" class="filter-select">
+                            <option value="">Select Department...</option>
+                        </select>
+                        <button class="btn-bulk-download" onclick="bulkDownload('department')">
+                            📥 Download Department PDFs
+                        </button>
+                    </div>
+                </div>
+            </div>
             
             <div class="submissions-section">
                 <h2>Recent Submissions</h2>
@@ -391,6 +495,101 @@
         function loadDashboard() {
             loadStats();
             loadSubmissions();
+            loadFilters();
+        }
+        
+        // Load colleges and departments for filtering
+        function loadFilters() {
+            fetch(`${API_URL}/filters`, {
+                headers: {
+                    'x-vendor-password': vendorPassword
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Populate college dropdown
+                const collegeSelect = document.getElementById('collegeFilter');
+                collegeSelect.innerHTML = '<option value="">Select College...</option>';
+                data.colleges.forEach(college => {
+                    const option = document.createElement('option');
+                    option.value = college;
+                    option.textContent = college;
+                    collegeSelect.appendChild(option);
+                });
+                
+                // Populate department dropdown
+                const deptSelect = document.getElementById('departmentFilter');
+                deptSelect.innerHTML = '<option value="">Select Department...</option>';
+                data.departments.forEach(dept => {
+                    const option = document.createElement('option');
+                    option.value = dept;
+                    option.textContent = dept;
+                    deptSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading filters:', error);
+            });
+        }
+        
+        // Bulk download function
+        function bulkDownload(filterType) {
+            const selectId = filterType === 'college' ? 'collegeFilter' : 'departmentFilter';
+            const filterValue = document.getElementById(selectId).value;
+            
+            if (!filterValue) {
+                alert(`Please select a ${filterType} first`);
+                return;
+            }
+            
+            const confirmMsg = `Download all PDFs from ${filterType}: ${filterValue}?\n\nThis will create a ZIP file with all paid orders.`;
+            if (!confirm(confirmMsg)) {
+                return;
+            }
+            
+            // Show loading state
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = '⏳ Preparing download...';
+            button.disabled = true;
+            
+            // Trigger download
+            const downloadUrl = `${API_URL}/download-bulk/${filterType}/${encodeURIComponent(filterValue)}?password=${vendorPassword}`;
+            
+            fetch(downloadUrl, {
+                headers: {
+                    'x-vendor-password': vendorPassword
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => {
+                        throw new Error(err.error || 'Download failed');
+                    });
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                // Create download link
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${filterType}_${filterValue.replace(/\s+/g, '_')}_${Date.now()}.zip`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                alert(`✅ Download started!\n\nZIP file contains all PDFs from ${filterType}: ${filterValue}`);
+            })
+            .catch(error => {
+                console.error('Download error:', error);
+                alert(`❌ Download failed: ${error.message}`);
+            })
+            .finally(() => {
+                button.textContent = originalText;
+                button.disabled = false;
+            });
         }
 
         function loadStats() {

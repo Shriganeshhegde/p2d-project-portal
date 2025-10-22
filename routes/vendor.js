@@ -234,4 +234,127 @@ router.get('/stats', vendorAuth, async (req, res) => {
   }
 });
 
+// Bulk download by college or department
+router.get('/download-bulk/:filterType/:filterValue', vendorAuth, async (req, res) => {
+  try {
+    const { filterType, filterValue } = req.params;
+    const decodedValue = decodeURIComponent(filterValue);
+    
+    console.log(`Bulk download requested: ${filterType} = ${decodedValue}`);
+    
+    // Get all folders
+    const folders = await getAllStudentFolders();
+    
+    // Filter folders based on criteria
+    const matchingFolders = [];
+    
+    for (const folderName of folders) {
+      try {
+        const contents = await getStudentFolderContents(folderName);
+        const details = contents.studentDetails || {};
+        
+        let matches = false;
+        if (filterType === 'college') {
+          matches = details.studentInfo?.college === decodedValue;
+        } else if (filterType === 'department') {
+          matches = details.studentInfo?.department === decodedValue;
+        }
+        
+        // Only include paid orders
+        if (matches && details.pricing?.paymentStatus === 'paid') {
+          matchingFolders.push({
+            folderName,
+            studentName: details.studentInfo?.name || 'Unknown',
+            files: contents.files || []
+          });
+        }
+      } catch (err) {
+        console.error(`Error reading folder ${folderName}:`, err);
+      }
+    }
+    
+    if (matchingFolders.length === 0) {
+      return res.status(404).json({ 
+        error: `No paid orders found for ${filterType}: ${decodedValue}` 
+      });
+    }
+    
+    // Create zip file
+    const archive = archiver('zip', { zlib: { level: 9 } });
+    const zipFileName = `${filterType}_${decodedValue.replace(/\s+/g, '_')}_${Date.now()}.zip`;
+    
+    res.attachment(zipFileName);
+    archive.pipe(res);
+    
+    // Add files to zip
+    const uploadsDir = path.join(__dirname, '..', 'uploads');
+    
+    for (const folder of matchingFolders) {
+      const folderPath = path.join(uploadsDir, folder.folderName);
+      
+      // Add all PDF files from this folder
+      for (const file of folder.files) {
+        const filePath = path.join(folderPath, file);
+        
+        try {
+          const fileExists = await fs.access(filePath).then(() => true).catch(() => false);
+          if (fileExists) {
+            // Add file with student name prefix
+            const studentPrefix = folder.studentName.replace(/\s+/g, '_');
+            archive.file(filePath, { 
+              name: `${studentPrefix}/${file}` 
+            });
+          }
+        } catch (err) {
+          console.error(`Error adding file ${filePath}:`, err);
+        }
+      }
+    }
+    
+    await archive.finalize();
+    
+    console.log(`Bulk download completed: ${matchingFolders.length} orders, ${zipFileName}`);
+    
+  } catch (error) {
+    console.error('Error creating bulk download:', error);
+    res.status(500).json({ error: 'Failed to create bulk download' });
+  }
+});
+
+// Get unique colleges and departments for filtering
+router.get('/filters', vendorAuth, async (req, res) => {
+  try {
+    const folders = await getAllStudentFolders();
+    const colleges = new Set();
+    const departments = new Set();
+    
+    for (const folderName of folders) {
+      try {
+        const contents = await getStudentFolderContents(folderName);
+        const details = contents.studentDetails || {};
+        
+        // Only include paid orders
+        if (details.pricing?.paymentStatus === 'paid') {
+          if (details.studentInfo?.college) {
+            colleges.add(details.studentInfo.college);
+          }
+          if (details.studentInfo?.department) {
+            departments.add(details.studentInfo.department);
+          }
+        }
+      } catch (err) {
+        // Skip folders with errors
+      }
+    }
+    
+    res.json({
+      colleges: Array.from(colleges).sort(),
+      departments: Array.from(departments).sort()
+    });
+  } catch (error) {
+    console.error('Error fetching filters:', error);
+    res.status(500).json({ error: 'Failed to fetch filters' });
+  }
+});
+
 module.exports = router;
