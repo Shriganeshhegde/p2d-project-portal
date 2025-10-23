@@ -73,8 +73,11 @@ const Payment = () => {
     // BASE COSTS (Hidden from customer)
     const basePrintingCostPerPage = 1.25; // ₹1.25 per page
     const baseTransportationCost = 18; // ₹18 fixed
-    const baseBindingCostPerCopy = 80; // ₹80 per copy
-    const baseGlassSheetCostPerCopy = 40; // ₹40 per copy
+    // TEMPORARILY REMOVED FOR TESTING - Will add back later
+    // const baseBindingCostPerCopy = 80; // ₹80 per copy
+    // const baseGlassSheetCostPerCopy = 40; // ₹40 per copy
+    const baseBindingCostPerCopy = 0; // TESTING: Removed binding charge
+    const baseGlassSheetCostPerCopy = 0; // TESTING: Removed glass sheet charge
     
     // Calculate base costs
     const basePrintingTotal = pages * basePrintingCostPerPage * copies;
@@ -103,7 +106,7 @@ const Payment = () => {
 
     return {
       printingCost: Math.round(customerPrintingCost),
-      bindingCost: Math.round(customerBindingCost), // Includes glass sheet
+      bindingCost: Math.round(customerBindingCost), // Includes glass sheet (currently ₹0 for testing)
       transportationCost: Math.round(customerTransportCost),
       total: Math.round(finalTotal),
       // Hidden calculations (for internal use only)

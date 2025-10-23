@@ -121,6 +121,44 @@ router.get('/download-folder/:folderName', vendorAuth, async (req, res) => {
     // Check if folder exists
     await fs.access(folderPath);
     
+    // Update order status to "Printing in progress" when vendor downloads
+    try {
+      // Get student details from folder to find the project
+      const contents = await getStudentFolderContents(folderName);
+      const studentEmail = contents.studentDetails?.studentInfo?.email;
+      
+      if (studentEmail) {
+        // Find the project by student email and update status
+        const { data: projects } = await supabase
+          .from('projects')
+          .select('id, status')
+          .eq('user_id', studentEmail)
+          .eq('payment_status', 'paid')
+          .order('submitted_date', { ascending: false })
+          .limit(1);
+        
+        if (projects && projects.length > 0) {
+          const project = projects[0];
+          
+          // Only update if status is "Order Accepted" or "pending"
+          if (project.status === 'Order Accepted' || project.status === 'pending') {
+            await supabase
+              .from('projects')
+              .update({ 
+                status: 'Printing in progress',
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', project.id);
+            
+            console.log(`✅ Order status updated to "Printing in progress" for project ${project.id}`);
+          }
+        }
+      }
+    } catch (statusError) {
+      // Don't fail the download if status update fails
+      console.error('Error updating order status:', statusError);
+    }
+    
     res.setHeader('Content-Type', 'application/zip');
     res.setHeader('Content-Disposition', `attachment; filename="${folderName}.zip"`);
     
@@ -247,6 +285,7 @@ router.get('/download-bulk/:filterType/:filterValue', vendorAuth, async (req, re
     
     // Filter folders based on criteria
     const matchingFolders = [];
+    const studentEmailsToUpdate = [];
     
     for (const folderName of folders) {
       try {
@@ -267,6 +306,11 @@ router.get('/download-bulk/:filterType/:filterValue', vendorAuth, async (req, re
             studentName: details.studentInfo?.name || 'Unknown',
             files: contents.files || []
           });
+          
+          // Collect student emails for status update
+          if (details.studentInfo?.email) {
+            studentEmailsToUpdate.push(details.studentInfo.email);
+          }
         }
       } catch (err) {
         console.error(`Error reading folder ${folderName}:`, err);
@@ -312,6 +356,26 @@ router.get('/download-bulk/:filterType/:filterValue', vendorAuth, async (req, re
     }
     
     await archive.finalize();
+    
+    // Update order status to "Printing in progress" for all downloaded orders
+    if (studentEmailsToUpdate.length > 0) {
+      try {
+        const { data: updatedProjects } = await supabase
+          .from('projects')
+          .update({ 
+            status: 'Printing in progress',
+            updated_at: new Date().toISOString()
+          })
+          .in('user_id', studentEmailsToUpdate)
+          .eq('payment_status', 'paid')
+          .in('status', ['Order Accepted', 'pending'])
+          .select('id');
+        
+        console.log(`✅ Updated ${updatedProjects?.length || 0} orders to "Printing in progress"`);
+      } catch (statusError) {
+        console.error('Error updating bulk order status:', statusError);
+      }
+    }
     
     console.log(`Bulk download completed: ${matchingFolders.length} orders, ${zipFileName}`);
     
