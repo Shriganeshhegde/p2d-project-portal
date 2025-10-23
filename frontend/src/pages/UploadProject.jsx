@@ -16,7 +16,6 @@ const UploadProject = () => {
     description: '',
     department: '',
     semester: '',
-    subject: '',
     guide: ''
   });
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -350,28 +349,15 @@ const UploadProject = () => {
                 </div>
               </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Subject</label>
-                  <input
-                    type="text"
-                    name="subject"
-                    value={projectData.subject}
-                    onChange={handleInputChange}
-                    placeholder="e.g., Machine Learning"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Project Guide</label>
-                  <input
-                    type="text"
-                    name="guide"
-                    value={projectData.guide}
-                    onChange={handleInputChange}
-                    placeholder="Guide name"
-                  />
-                </div>
+              <div className="form-group">
+                <label>Project Guide</label>
+                <input
+                  type="text"
+                  name="guide"
+                  value={projectData.guide}
+                  onChange={handleInputChange}
+                  placeholder="Guide name (optional)"
+                />
               </div>
             </form>
           </div>
@@ -450,10 +436,6 @@ const UploadProject = () => {
                 <div className="review-item">
                   <span className="review-label">Semester:</span>
                   <span className="review-value">Semester {projectData.semester}</span>
-                </div>
-                <div className="review-item">
-                  <span className="review-label">Subject:</span>
-                  <span className="review-value">{projectData.subject || 'N/A'}</span>
                 </div>
               </div>
             </div>

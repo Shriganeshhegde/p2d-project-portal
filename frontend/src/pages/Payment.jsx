@@ -72,10 +72,11 @@ const Payment = () => {
     
     // BASE COSTS (Hidden from customer)
     const basePrintingCostPerPage = 1.25; // ₹1.25 per page
-    const baseTransportationCost = 18; // ₹18 fixed
     // TEMPORARILY REMOVED FOR TESTING - Will add back later
+    // const baseTransportationCost = 18; // ₹18 fixed
     // const baseBindingCostPerCopy = 80; // ₹80 per copy
     // const baseGlassSheetCostPerCopy = 40; // ₹40 per copy
+    const baseTransportationCost = 0; // TESTING: Removed transportation charge
     const baseBindingCostPerCopy = 0; // TESTING: Removed binding charge
     const baseGlassSheetCostPerCopy = 0; // TESTING: Removed glass sheet charge
     
