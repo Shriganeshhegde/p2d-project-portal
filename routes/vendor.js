@@ -465,11 +465,10 @@ router.get('/stats', vendorAuth, async (req, res) => {
     
     if (projectsError) throw projectsError;
     
-    // Get all completed payments
+    // Get all payments (we'll filter by project payment_status instead)
     const { data: payments, error: paymentsError } = await supabase
       .from('payments')
-      .select('amount, status, project_id')
-      .eq('status', 'completed');
+      .select('amount, status, project_id');
     
     if (paymentsError) {
       console.error('Error fetching payments:', paymentsError);
@@ -480,7 +479,8 @@ router.get('/stats', vendorAuth, async (req, res) => {
     
     console.log('📊 Stats calculation:');
     console.log('Total projects:', allProjects.length);
-    console.log('Total completed payments:', allPayments.length);
+    console.log('Total payments:', allPayments.length);
+    console.log('Payment statuses:', allPayments.map(p => ({ status: p.status, amount: p.amount })));
     
     // Filter projects that have files uploaded
     const projectsWithFiles = allProjects.filter(p => 
@@ -490,17 +490,18 @@ router.get('/stats', vendorAuth, async (req, res) => {
     console.log('Projects with files:', projectsWithFiles.length);
     console.log('Project IDs with files:', projectsWithFiles.map(p => p.id));
     
-    // Calculate revenue only from completed payments for projects with files
+    // Calculate revenue from payments for projects with files
+    // Since project.payment_status = 'paid', the payment is completed
     const totalRevenue = allPayments.reduce((sum, payment) => {
       // Check if this payment is for a project with files
-      const hasFiles = projectsWithFiles.some(p => p.id === payment.project_id);
+      const project = projectsWithFiles.find(p => p.id === payment.project_id);
       
-      if (hasFiles) {
+      if (project) {
         const amount = parseFloat(payment.amount) || 0;
-        console.log(`✅ Adding payment: ₹${amount} (project: ${payment.project_id.substring(0, 8)})`);
+        console.log(`✅ Adding payment: ₹${amount} (project: ${payment.project_id.substring(0, 8)}, status: ${payment.status})`);
         return sum + amount;
       } else {
-        console.log(`❌ Skipping payment: project ${payment.project_id.substring(0, 8)} has no files`);
+        console.log(`❌ Skipping payment: project ${payment.project_id.substring(0, 8)} - no files or not paid`);
         return sum;
       }
     }, 0);
