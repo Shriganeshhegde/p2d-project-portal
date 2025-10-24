@@ -277,4 +277,186 @@ router.get('/my-payments', auth, async (req, res) => {
     }
 });
 
+// Razorpay Webhook Handler
+router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+    try {
+        const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
+        
+        if (!webhookSecret) {
+            console.error('⚠️ RAZORPAY_WEBHOOK_SECRET not configured');
+            return res.status(500).json({ error: 'Webhook secret not configured' });
+        }
+
+        // Get signature from headers
+        const signature = req.headers['x-razorpay-signature'];
+        
+        if (!signature) {
+            console.error('❌ No signature in webhook request');
+            return res.status(400).json({ error: 'No signature provided' });
+        }
+
+        // Verify webhook signature
+        const body = req.body.toString();
+        const expectedSignature = crypto
+            .createHmac('sha256', webhookSecret)
+            .update(body)
+            .digest('hex');
+
+        if (signature !== expectedSignature) {
+            console.error('❌ Invalid webhook signature');
+            return res.status(400).json({ error: 'Invalid signature' });
+        }
+
+        // Parse the webhook payload
+        const payload = JSON.parse(body);
+        const event = payload.event;
+        const paymentEntity = payload.payload?.payment?.entity;
+        const orderEntity = payload.payload?.order?.entity;
+
+        console.log(`✅ Webhook received: ${event}`);
+        console.log('Payload:', JSON.stringify(payload, null, 2));
+
+        // Handle different webhook events
+        switch (event) {
+            case 'payment.authorized':
+            case 'payment.captured':
+                await handlePaymentSuccess(paymentEntity);
+                break;
+
+            case 'payment.failed':
+                await handlePaymentFailure(paymentEntity);
+                break;
+
+            case 'order.paid':
+                await handleOrderPaid(orderEntity);
+                break;
+
+            default:
+                console.log(`ℹ️ Unhandled webhook event: ${event}`);
+        }
+
+        // Always return 200 to acknowledge receipt
+        res.status(200).json({ status: 'ok' });
+
+    } catch (error) {
+        console.error('❌ Webhook error:', error);
+        // Still return 200 to prevent retries for invalid requests
+        res.status(200).json({ status: 'error', message: error.message });
+    }
+});
+
+// Helper function to handle successful payment
+async function handlePaymentSuccess(payment) {
+    try {
+        if (!payment) return;
+
+        const orderId = payment.order_id;
+        const paymentId = payment.id;
+        const amount = payment.amount / 100; // Convert from paise to rupees
+
+        console.log(`💰 Processing successful payment: ${paymentId} for order: ${orderId}`);
+
+        // Update payment record
+        const { data: paymentRecord, error: findError } = await supabase
+            .from('payments')
+            .select('*')
+            .eq('razorpay_order_id', orderId)
+            .single();
+
+        if (findError || !paymentRecord) {
+            console.error('Payment record not found for order:', orderId);
+            return;
+        }
+
+        // Update payment status
+        const { error: updateError } = await supabase
+            .from('payments')
+            .update({
+                status: 'completed',
+                razorpay_payment_id: paymentId,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', paymentRecord.id);
+
+        if (updateError) {
+            console.error('Error updating payment:', updateError);
+            return;
+        }
+
+        // Update project status if exists
+        if (paymentRecord.project_id) {
+            await supabase
+                .from('projects')
+                .update({
+                    payment_status: 'paid',
+                    status: 'Order Accepted',
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', paymentRecord.project_id);
+        }
+
+        console.log(`✅ Payment processed successfully: ${paymentId}`);
+
+    } catch (error) {
+        console.error('Error handling payment success:', error);
+    }
+}
+
+// Helper function to handle failed payment
+async function handlePaymentFailure(payment) {
+    try {
+        if (!payment) return;
+
+        const orderId = payment.order_id;
+        const paymentId = payment.id;
+
+        console.log(`❌ Processing failed payment: ${paymentId} for order: ${orderId}`);
+
+        // Update payment record
+        const { error } = await supabase
+            .from('payments')
+            .update({
+                status: 'failed',
+                razorpay_payment_id: paymentId,
+                updated_at: new Date().toISOString()
+            })
+            .eq('razorpay_order_id', orderId);
+
+        if (error) {
+            console.error('Error updating failed payment:', error);
+        }
+
+        console.log(`✅ Failed payment recorded: ${paymentId}`);
+
+    } catch (error) {
+        console.error('Error handling payment failure:', error);
+    }
+}
+
+// Helper function to handle order paid event
+async function handleOrderPaid(order) {
+    try {
+        if (!order) return;
+
+        const orderId = order.id;
+        const amount = order.amount / 100;
+
+        console.log(`📦 Order paid: ${orderId}, Amount: ₹${amount}`);
+
+        // Update payment record
+        await supabase
+            .from('payments')
+            .update({
+                status: 'completed',
+                updated_at: new Date().toISOString()
+            })
+            .eq('razorpay_order_id', orderId);
+
+        console.log(`✅ Order payment processed: ${orderId}`);
+
+    } catch (error) {
+        console.error('Error handling order paid:', error);
+    }
+}
+
 module.exports = router;
