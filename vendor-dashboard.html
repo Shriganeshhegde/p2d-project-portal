@@ -633,25 +633,38 @@
             const submissionsList = document.getElementById('submissionsList');
             submissionsList.innerHTML = '<div class="loading">Loading submissions...</div>';
 
-            fetch(`${API_URL}/submissions`, {
+            fetch(`${API_URL}/pending-orders`, {
                 headers: {
                     'x-vendor-password': vendorPassword
                 }
             })
             .then(response => response.json())
             .then(data => {
-                if (data.submissions.length === 0) {
-                    submissionsList.innerHTML = '<p style="text-align: center; color: #666;">No submissions yet</p>';
+                if (!data.orders || data.orders.length === 0) {
+                    submissionsList.innerHTML = '<p style="text-align: center; color: #666;">No paid orders yet</p>';
                     return;
                 }
 
-                submissionsList.innerHTML = data.submissions.map(sub => `
+                // Parse description to extract printing details
+                const parseDescription = (desc) => {
+                    const parts = desc.split(',').map(p => p.trim());
+                    return {
+                        pages: parts[0]?.replace(' pages', '') || 'N/A',
+                        copies: parts[1]?.replace(' copies', '') || 'N/A',
+                        printType: parts[2]?.replace(' print', '') || 'N/A',
+                        bindingType: parts[3]?.replace(' binding', '').split('(')[0].trim() || 'N/A',
+                        bindingColor: parts[3]?.match(/\((.*?)\)/)?.[1] || 'N/A'
+                    };
+                };
+
+                submissionsList.innerHTML = data.orders.map(order => {
+                    const printDetails = parseDescription(order.description || '');
+                    return `
                     <div class="submission-card">
                         <div class="card-header">
-                            <h3>📄 ${sub.projectTitle || 'Untitled Project'}</h3>
-                            <span class="badge ${sub.paymentStatus === 'paid' ? 'badge-paid' : 'badge-pending'}">
-                                ${sub.paymentStatus === 'paid' ? '✓ PAID' : '⏳ PENDING'}
-                            </span>
+                            <h3>📄 ${order.title || 'Untitled Project'}</h3>
+                            <span class="badge badge-paid">✓ PAID</span>
+                            <span class="badge" style="background: #3b82f6;">${order.status || 'Pending'}</span>
                         </div>
                         
                         <div class="submission-details">
@@ -661,15 +674,15 @@
                                 <div class="detail-grid">
                                     <div class="detail-item">
                                         <span class="label">Name:</span>
-                                        <span class="value">${sub.studentName || 'N/A'}</span>
+                                        <span class="value">${order.users?.name || 'N/A'}</span>
                                     </div>
                                     <div class="detail-item">
                                         <span class="label">Email:</span>
-                                        <span class="value">${sub.email || 'N/A'}</span>
+                                        <span class="value">${order.users?.email || 'N/A'}</span>
                                     </div>
                                     <div class="detail-item">
                                         <span class="label">Phone:</span>
-                                        <span class="value">${sub.phone || 'N/A'}</span>
+                                        <span class="value">${order.users?.phone || 'N/A'}</span>
                                     </div>
                                 </div>
                             </div>
@@ -680,15 +693,15 @@
                                 <div class="detail-grid">
                                     <div class="detail-item">
                                         <span class="label">College:</span>
-                                        <span class="value">${sub.college || 'N/A'}</span>
+                                        <span class="value">${order.users?.college || 'N/A'}</span>
                                     </div>
                                     <div class="detail-item">
                                         <span class="label">Department:</span>
-                                        <span class="value">${sub.department || 'N/A'}</span>
+                                        <span class="value">${order.department || order.users?.department || 'N/A'}</span>
                                     </div>
                                     <div class="detail-item">
                                         <span class="label">Semester:</span>
-                                        <span class="value">${sub.semester || 'N/A'}</span>
+                                        <span class="value">${order.semester || 'N/A'}</span>
                                     </div>
                                 </div>
                             </div>
@@ -699,27 +712,23 @@
                                 <div class="detail-grid">
                                     <div class="detail-item">
                                         <span class="label">Total Pages:</span>
-                                        <span class="value highlight">${sub.totalPages || 0} pages</span>
+                                        <span class="value highlight">${printDetails.pages} pages</span>
                                     </div>
                                     <div class="detail-item">
                                         <span class="label">Number of Copies:</span>
-                                        <span class="value highlight">${sub.copies || 1} copies</span>
+                                        <span class="value highlight">${printDetails.copies} copies</span>
                                     </div>
                                     <div class="detail-item">
                                         <span class="label">Print Type:</span>
-                                        <span class="value">${sub.printType || 'N/A'}</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <span class="label">Paper Type:</span>
-                                        <span class="value">${sub.paperType || 'N/A'}</span>
+                                        <span class="value">${printDetails.printType}</span>
                                     </div>
                                     <div class="detail-item">
                                         <span class="label">Binding Type:</span>
-                                        <span class="value">${sub.bindingType || 'N/A'}</span>
+                                        <span class="value">${printDetails.bindingType}</span>
                                     </div>
                                     <div class="detail-item">
                                         <span class="label">Binding Color:</span>
-                                        <span class="value">${sub.bindingColor || 'N/A'}</span>
+                                        <span class="value">${printDetails.bindingColor}</span>
                                     </div>
                                 </div>
                             </div>
@@ -729,37 +738,57 @@
                                 <h4>📦 Order Information</h4>
                                 <div class="detail-grid">
                                     <div class="detail-item">
-                                        <span class="label">Submitted Date:</span>
-                                        <span class="value">${sub.submittedDate ? new Date(sub.submittedDate).toLocaleString() : 'N/A'}</span>
+                                        <span class="label">Submitted:</span>
+                                        <span class="value">${new Date(order.submission_date).toLocaleDateString()}</span>
                                     </div>
                                     <div class="detail-item">
-                                        <span class="label">Total Amount:</span>
-                                        <span class="value price">₹${sub.totalAmount || 0}</span>
-                                    </div>
-                                    <div class="detail-item">
-                                        <span class="label">PDF File Name:</span>
-                                        <span class="value filename">${sub.fileName || 'N/A'}</span>
+                                        <span class="label">Order ID:</span>
+                                        <span class="value">${order.id.substring(0, 8)}...</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="card-actions">
-                            <a href="${API_URL}/download-folder/${sub.folderName}" 
-                               class="btn-download"
-                               onclick="return downloadFolder('${sub.folderName}')">
-                                📥 Download Project Files
-                            </a>
-                            <button class="btn-details" onclick="viewFullDetails('${sub.folderName}')">
-                                👁️ View Full Details
+                            <button class="btn-download" onclick="updateOrderStatus('${order.id}', 'Printing in progress')">
+                                🖨️ Mark as Printing
+                            </button>
+                            <button class="btn-download" onclick="updateOrderStatus('${order.id}', 'Ready for Delivery')">
+                                📦 Mark as Ready
+                            </button>
+                            <button class="btn-download" onclick="updateOrderStatus('${order.id}', 'Delivered')">
+                                ✅ Mark as Delivered
                             </button>
                         </div>
                     </div>
-                `).join('');
+                `}).join('');
             })
             .catch(error => {
                 console.error('Error loading submissions:', error);
-                submissionsList.innerHTML = '<div class="error">Error loading submissions. Make sure backend is running.</div>';
+                submissionsList.innerHTML = '<p style="text-align: center; color: red;">Error loading submissions</p>';
+            });
+        }
+
+        function updateOrderStatus(projectId, newStatus) {
+            if (!confirm(`Update order status to "${newStatus}"?`)) return;
+
+            fetch(`${API_URL}/update-status/${projectId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-vendor-password': vendorPassword
+                },
+                body: JSON.stringify({ status: newStatus })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(`✅ Order status updated to "${newStatus}"`);
+                loadSubmissions();
+                loadStats();
+            })
+            .catch(error => {
+                console.error('Error updating status:', error);
+                alert('❌ Failed to update status');
             });
         }
 
