@@ -83,7 +83,7 @@ router.post('/create-order', auth, async (req, res) => {
 // Verify payment and save files
 router.post('/verify-payment', auth, async (req, res) => {
     try {
-        let { projectId, razorpay_order_id, razorpay_payment_id, razorpay_signature, projectData } = req.body;
+        let { projectId, razorpay_order_id, razorpay_payment_id, razorpay_signature, projectData, files } = req.body;
         const userId = req.user?.id;
 
         // Generate projectId if not provided
@@ -192,6 +192,66 @@ router.post('/verify-payment', auth, async (req, res) => {
 
         console.log('Project saved/updated successfully:', project.id);
 
+        // Store file URLs if files were provided
+        let fileUrls = [];
+        if (files && files.length > 0) {
+            console.log(`Storing ${files.length} file(s) for project ${project.id}`);
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                try {
+                    // Convert base64 to buffer if needed
+                    const fileData = file.data.includes('base64,') 
+                        ? Buffer.from(file.data.split('base64,')[1], 'base64')
+                        : file.data;
+                    
+                    const fileName = `${project.id}/${Date.now()}_${file.name}`;
+                    
+                    // Upload to Supabase Storage
+                    const { data: uploadData, error: uploadError } = await supabase.storage
+                        .from('project-documents')
+                        .upload(fileName, fileData, {
+                            contentType: file.type || 'application/pdf',
+                            upsert: false
+                        });
+                    
+                    if (uploadError) {
+                        console.error('File upload error:', uploadError);
+                        continue;
+                    }
+                    
+                    // Get public URL
+                    const { data: urlData } = supabase.storage
+                        .from('project-documents')
+                        .getPublicUrl(fileName);
+                    
+                    fileUrls.push({
+                        name: file.name,
+                        url: urlData.publicUrl,
+                        path: fileName,
+                        size: file.size
+                    });
+                    
+                    console.log(`✅ File uploaded: ${file.name}`);
+                } catch (fileError) {
+                    console.error(`Error uploading file ${file.name}:`, fileError);
+                }
+            }
+            
+            // Update project with file URLs
+            if (fileUrls.length > 0) {
+                await supabase
+                    .from('projects')
+                    .update({
+                        file_urls: fileUrls,
+                        file_count: fileUrls.length
+                    })
+                    .eq('id', project.id);
+                
+                console.log(`✅ Stored ${fileUrls.length} file URL(s) in database`);
+            }
+        }
+
         // Update payment status to completed
         await supabase
             .from('payments')
@@ -205,7 +265,8 @@ router.post('/verify-payment', auth, async (req, res) => {
         res.json({
             success: true,
             message: 'Payment verified and project saved successfully',
-            projectId: project.id
+            projectId: project.id,
+            filesUploaded: fileUrls.length
         });
     } catch (error) {
         console.error('Error verifying payment:', error);

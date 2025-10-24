@@ -209,6 +209,68 @@ router.get('/pending-orders', vendorAuth, async (req, res) => {
   }
 });
 
+// Download project files
+router.get('/download-files/:projectId', vendorAuth, async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    
+    // Get project with file URLs
+    const { data: project, error } = await supabase
+      .from('projects')
+      .select('*, users(name, email)')
+      .eq('id', projectId)
+      .single();
+    
+    if (error || !project) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+    
+    if (!project.file_urls || project.file_urls.length === 0) {
+      return res.status(404).json({ error: 'No files found for this project' });
+    }
+    
+    // If only one file, redirect to it
+    if (project.file_urls.length === 1) {
+      return res.json({
+        singleFile: true,
+        url: project.file_urls[0].url,
+        name: project.file_urls[0].name
+      });
+    }
+    
+    // Multiple files - create ZIP
+    const archive = archiver('zip', { zlib: { level: 9 } });
+    const studentName = project.users?.name || 'Student';
+    const zipFileName = `${studentName.replace(/\s+/g, '_')}_${projectId.substring(0, 8)}.zip`;
+    
+    res.attachment(zipFileName);
+    archive.pipe(res);
+    
+    // Download each file from Supabase Storage and add to ZIP
+    for (const fileInfo of project.file_urls) {
+      try {
+        const { data: fileData, error: downloadError } = await supabase.storage
+          .from('project-documents')
+          .download(fileInfo.path);
+        
+        if (!downloadError && fileData) {
+          const buffer = Buffer.from(await fileData.arrayBuffer());
+          archive.append(buffer, { name: fileInfo.name });
+        }
+      } catch (err) {
+        console.error(`Error downloading file ${fileInfo.name}:`, err);
+      }
+    }
+    
+    await archive.finalize();
+    console.log(`✅ Files downloaded for project: ${projectId}`);
+    
+  } catch (error) {
+    console.error('Error downloading files:', error);
+    res.status(500).json({ error: 'Failed to download files' });
+  }
+});
+
 // Update project status (vendor marks as completed)
 router.put('/update-status/:projectId', vendorAuth, async (req, res) => {
   try {

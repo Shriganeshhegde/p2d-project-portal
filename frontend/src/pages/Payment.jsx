@@ -30,14 +30,15 @@ const Payment = () => {
     const navState = window.history.state?.usr;
     
     if (navState?.projectData && navState?.customization) {
-      const { projectData, customization, totalPages } = navState;
+      const { projectData, customization, totalPages, uploadedFiles } = navState;
       
       setProject({
         id: projectId,
         title: projectData.title,
         pages: totalPages,
         department: projectData.department,
-        semester: projectData.semester
+        semester: projectData.semester,
+        uploadedFiles: uploadedFiles || [] // Store uploaded files
       });
       
       setPaymentDetails(prev => ({
@@ -169,6 +170,28 @@ const Payment = () => {
         handler: async function (response) {
           // Payment successful - verify and save
           try {
+            // Prepare files for upload (convert to base64 if needed)
+            const filesToUpload = await Promise.all(
+              (project.uploadedFiles || []).map(async (file) => {
+                if (file.file) {
+                  // Convert File object to base64
+                  return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      resolve({
+                        name: file.name || file.file.name,
+                        data: reader.result,
+                        type: file.file.type,
+                        size: file.file.size
+                      });
+                    };
+                    reader.readAsDataURL(file.file);
+                  });
+                }
+                return null;
+              })
+            );
+
             const verifyResponse = await fetch(`${apiUrl}/api/payments/verify-payment`, {
               method: 'POST',
               headers: {
@@ -192,7 +215,8 @@ const Payment = () => {
                   deliveryCollege: paymentDetails.deliveryCollege || project.college || 'College',
                   department: project.department || 'General',
                   semester: project.semester || 1
-                }
+                },
+                files: filesToUpload.filter(f => f !== null)
               })
             });
 

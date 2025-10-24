@@ -750,6 +750,9 @@
                         </div>
                         
                         <div class="card-actions">
+                            <button class="btn-download" onclick="downloadProjectFiles('${order.id}')" style="background: #10b981;">
+                                📥 Download Files
+                            </button>
                             <button class="btn-download" onclick="updateOrderStatus('${order.id}', 'Printing in progress')">
                                 🖨️ Mark as Printing
                             </button>
@@ -766,6 +769,35 @@
             .catch(error => {
                 console.error('Error loading submissions:', error);
                 submissionsList.innerHTML = '<p style="text-align: center; color: red;">Error loading submissions</p>';
+            });
+        }
+
+        function downloadProjectFiles(projectId) {
+            fetch(`${API_URL}/download-files/${projectId}`, {
+                headers: {
+                    'x-vendor-password': vendorPassword
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Download failed');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.singleFile) {
+                    // Single file - open directly
+                    window.open(data.url, '_blank');
+                } else if (data.error) {
+                    alert('❌ ' + data.error);
+                } else {
+                    // Multiple files - download ZIP
+                    window.location.href = `${API_URL}/download-files/${projectId}?password=${vendorPassword}`;
+                }
+            })
+            .catch(error => {
+                console.error('Error downloading files:', error);
+                alert('❌ Failed to download files. Make sure files were uploaded with the order.');
             });
         }
 
