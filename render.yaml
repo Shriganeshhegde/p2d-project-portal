@@ -4,7 +4,6 @@ services:
     env: node
     region: singapore
     plan: free
-    rootDir: student-project-portal
     buildCommand: npm install
     startCommand: npm start
     healthCheckPath: /api/health
@@ -27,3 +26,9 @@ services:
         sync: false
       - key: RAZORPAY_KEY_SECRET
         sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
+      - key: VENDOR_PASSWORD
+        value: vendor123
+      - key: FRONTEND_URL
+        value: https://p2d-project-portal.vercel.app
