@@ -127,48 +127,70 @@ router.post('/verify-payment', auth, async (req, res) => {
             return res.status(404).json({ error: 'Payment record not found' });
         }
 
-        // Payment verified! Now save the project
-        // Note: Using actual database schema columns
-        const projectInsertData = {
-            id: projectId,
-            student_id: userId,
-            title: projectData.title,
-            description: `${projectData.pages} pages, ${projectData.copies} copies, ${projectData.printType} print, ${projectData.bindingType} binding${projectData.bindingColor ? ' (' + projectData.bindingColor + ')' : ''}`,
-            department: projectData.department || 'General',
-            semester: parseInt(projectData.semester) || 1,
-            payment_status: 'paid',
-            status: 'pending',
-            submission_date: new Date().toISOString()
-        };
-
-        console.log('Attempting to insert project:', projectInsertData);
-
-        const { data: project, error: projectError } = await supabase
+        // Check if project already exists (to prevent duplicates)
+        const { data: existingProject } = await supabase
             .from('projects')
-            .insert([projectInsertData])
-            .select()
+            .select('*')
+            .eq('id', projectId)
             .single();
 
-        if (projectError) {
-            console.error('Error saving project:', projectError);
-            console.error('Project data attempted:', {
+        let project;
+
+        if (existingProject) {
+            // Update existing project with payment confirmation
+            console.log('Updating existing project:', projectId);
+            const { data: updatedProject, error: updateError } = await supabase
+                .from('projects')
+                .update({
+                    payment_status: 'paid',
+                    status: 'Order Accepted',
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', projectId)
+                .select()
+                .single();
+
+            if (updateError) throw updateError;
+            project = updatedProject;
+        } else {
+            // Create new project (payment verified)
+            console.log('Creating new project:', projectId);
+            const projectInsertData = {
                 id: projectId,
                 student_id: userId,
                 title: projectData.title,
-                department: projectData.department,
-                semester: projectData.semester
-            });
-            
-            // Return more helpful error
-            if (projectError.code === '23503') {
-                return res.status(400).json({ 
-                    error: 'Invalid user ID. Please login again.',
-                    details: 'User account not found in database'
-                });
+                description: `${projectData.pages} pages, ${projectData.copies} copies, ${projectData.printType} print, ${projectData.bindingType} binding${projectData.bindingColor ? ' (' + projectData.bindingColor + ')' : ''}`,
+                department: projectData.department || 'General',
+                semester: parseInt(projectData.semester) || 1,
+                payment_status: 'paid',
+                status: 'Order Accepted',
+                submission_date: new Date().toISOString()
+            };
+
+            const { data: newProject, error: projectError } = await supabase
+                .from('projects')
+                .insert([projectInsertData])
+                .select()
+                .single();
+
+            if (projectError) {
+                console.error('Error saving project:', projectError);
+                
+                // Return more helpful error
+                if (projectError.code === '23503') {
+                    return res.status(400).json({ 
+                        error: 'Invalid user ID. Please login again.',
+                        details: 'User account not found in database'
+                    });
+                }
+                
+                throw projectError;
             }
-            
-            throw projectError;
+
+            project = newProject;
         }
+
+        console.log('Project saved/updated successfully:', project.id);
 
         // Update payment status to completed
         await supabase
