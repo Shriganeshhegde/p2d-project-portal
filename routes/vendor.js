@@ -457,14 +457,15 @@ router.put('/update-status/:projectId', vendorAuth, async (req, res) => {
 // Get statistics for vendor dashboard
 router.get('/stats', vendorAuth, async (req, res) => {
   try {
-    // Get all projects with payment data
+    // Get only paid projects
     const { data: projects, error: projectsError } = await supabase
       .from('projects')
-      .select('id, status, payment_status');
+      .select('id, status, payment_status')
+      .eq('payment_status', 'paid');
     
     if (projectsError) throw projectsError;
     
-    // Get all payments to calculate revenue
+    // Get all completed payments to calculate revenue
     const { data: payments, error: paymentsError } = await supabase
       .from('payments')
       .select('amount, status')
@@ -475,17 +476,15 @@ router.get('/stats', vendorAuth, async (req, res) => {
     const allProjects = projects || [];
     const allPayments = payments || [];
     
-    // Calculate stats
+    // Calculate stats - only for paid projects
     const stats = {
-      totalProjects: allProjects.length,
+      totalProjects: allProjects.length, // Only paid projects
       pendingProjects: allProjects.filter(p => 
-        p.status === 'Order Accepted' || 
-        p.status === 'pending'
-      ).length,
+        p.status !== 'Delivered' && p.status !== 'completed'
+      ).length, // Paid but not yet delivered
       completedProjects: allProjects.filter(p => 
-        p.status === 'Delivered' || 
-        p.status === 'completed'
-      ).length,
+        p.status === 'Delivered' || p.status === 'completed'
+      ).length, // Paid and delivered
       totalRevenue: allPayments.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0)
     };
     

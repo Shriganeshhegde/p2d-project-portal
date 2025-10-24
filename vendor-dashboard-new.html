@@ -630,7 +630,44 @@
         }
 
         function downloadOrder(orderId) {
-            window.open(`${API_URL}/download-files/${orderId}?password=${vendorPassword}`, '_blank');
+            fetch(`${API_URL}/download-files/${orderId}`, {
+                headers: { 'x-vendor-password': vendorPassword }
+            })
+            .then(async response => {
+                const contentType = response.headers.get('content-type');
+                
+                if (contentType && contentType.includes('application/json')) {
+                    const data = await response.json();
+                    
+                    if (!response.ok) {
+                        alert('❌ ' + (data.error || 'Download failed'));
+                        return;
+                    }
+                    
+                    if (data.singleFile) {
+                        // Single file - open directly
+                        window.open(data.url, '_blank');
+                        
+                        // Auto-update status to "Printing in progress"
+                        updateStatusAuto(orderId, 'Printing in progress');
+                    }
+                } else {
+                    // ZIP download - create blob and download
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `Order_${orderId.substring(0, 8)}.zip`;
+                    a.click();
+                    
+                    // Auto-update status to "Printing in progress"
+                    updateStatusAuto(orderId, 'Printing in progress');
+                }
+            })
+            .catch(error => {
+                console.error('Error downloading:', error);
+                alert('❌ Failed to download files');
+            });
         }
 
         function downloadSelected() {
@@ -674,18 +711,29 @@
             if (college) url += `college=${encodeURIComponent(college)}&`;
             if (department) url += `department=${encodeURIComponent(department)}`;
             
-            window.location.href = url + `&password=${vendorPassword}`;
+            // Use fetch with proper authentication
+            fetch(url, {
+                headers: { 'x-vendor-password': vendorPassword }
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                const filterName = college || department || 'Filtered';
+                a.download = `${filterName.replace(/\s+/g, '_')}_Orders.zip`;
+                a.click();
+                
+                alert('✅ Download started!');
+            })
+            .catch(error => {
+                console.error('Error downloading:', error);
+                alert('❌ Failed to download filtered orders');
+            });
         }
 
-        function updateStatus(orderId) {
-            const newStatus = prompt('Enter new status:\n1. Printing in progress\n2. Ready for Delivery\n3. Delivered');
-            
-            let status;
-            if (newStatus === '1') status = 'Printing in progress';
-            else if (newStatus === '2') status = 'Ready for Delivery';
-            else if (newStatus === '3') status = 'Delivered';
-            else return;
-            
+        function updateStatusAuto(orderId, status) {
+            // Silent update without alert
             fetch(`${API_URL}/update-status/${orderId}`, {
                 method: 'PUT',
                 headers: {
@@ -696,14 +744,90 @@
             })
             .then(response => response.json())
             .then(data => {
-                alert(`✅ Status updated to "${status}"`);
+                console.log(`✅ Status auto-updated to "${status}"`);
                 loadOrders();
                 loadStats();
             })
             .catch(error => {
                 console.error('Error updating status:', error);
-                alert('❌ Failed to update status');
             });
+        }
+
+        function updateStatus(orderId) {
+            // Create modal for status selection
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;';
+            
+            const content = document.createElement('div');
+            content.style.cssText = 'background: white; padding: 30px; border-radius: 8px; max-width: 400px;';
+            
+            content.innerHTML = `
+                <h3 style="margin-bottom: 20px; color: #333;">Update Order Status</h3>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: flex; align-items: center; padding: 10px; border: 2px solid #ddd; border-radius: 6px; cursor: pointer; margin-bottom: 10px;">
+                        <input type="radio" name="status" value="Printing in progress" style="margin-right: 10px;">
+                        <span>🖨️ Printing in progress</span>
+                    </label>
+                    <label style="display: flex; align-items: center; padding: 10px; border: 2px solid #ddd; border-radius: 6px; cursor: pointer; margin-bottom: 10px;">
+                        <input type="radio" name="status" value="Ready for Delivery" style="margin-right: 10px;">
+                        <span>📦 Ready for Delivery</span>
+                    </label>
+                    <label style="display: flex; align-items: center; padding: 10px; border: 2px solid #ddd; border-radius: 6px; cursor: pointer;">
+                        <input type="radio" name="status" value="Delivered" style="margin-right: 10px;">
+                        <span>✅ Delivered</span>
+                    </label>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button id="cancelBtn" style="padding: 10px 20px; border: 2px solid #ddd; background: white; border-radius: 6px; cursor: pointer; font-weight: 600;">Cancel</button>
+                    <button id="updateBtn" style="padding: 10px 20px; border: none; background: #667eea; color: white; border-radius: 6px; cursor: pointer; font-weight: 600;">Update</button>
+                </div>
+            `;
+            
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+            
+            // Cancel button
+            content.querySelector('#cancelBtn').onclick = () => {
+                document.body.removeChild(modal);
+            };
+            
+            // Update button
+            content.querySelector('#updateBtn').onclick = () => {
+                const selected = content.querySelector('input[name="status"]:checked');
+                if (!selected) {
+                    alert('Please select a status');
+                    return;
+                }
+                
+                const status = selected.value;
+                
+                fetch(`${API_URL}/update-status/${orderId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-vendor-password': vendorPassword
+                    },
+                    body: JSON.stringify({ status })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.body.removeChild(modal);
+                    alert(`✅ Status updated to "${status}"`);
+                    loadOrders();
+                    loadStats();
+                })
+                .catch(error => {
+                    console.error('Error updating status:', error);
+                    alert('❌ Failed to update status');
+                });
+            };
+            
+            // Close on background click
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    document.body.removeChild(modal);
+                }
+            };
         }
 
         // Auto-refresh every 30 seconds
