@@ -493,6 +493,11 @@ router.get('/stats', vendorAuth, async (req, res) => {
     // Calculate revenue from payments for projects with files
     // Since project.payment_status = 'paid', the payment is completed
     const totalRevenue = allPayments.reduce((sum, payment) => {
+      if (!payment.project_id) {
+        console.log(`❌ Skipping payment: no project_id`);
+        return sum;
+      }
+      
       // Check if this payment is for a project with files
       const project = projectsWithFiles.find(p => p.id === payment.project_id);
       
