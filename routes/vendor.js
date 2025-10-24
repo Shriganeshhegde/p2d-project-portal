@@ -188,11 +188,11 @@ router.get('/pending-orders', vendorAuth, async (req, res) => {
       .from('projects')
       .select(`
         *,
-        users (name, email, college, department, phone)
+        users (name, email, college, department)
       `)
       .eq('payment_status', 'paid')
       .neq('status', 'completed')
-      .order('submitted_date', { ascending: false });
+      .order('submission_date', { ascending: false });
     
     if (error) {
       console.error('Database error:', error);
@@ -217,7 +217,7 @@ router.get('/download-files/:projectId', vendorAuth, async (req, res) => {
     // Get project with file URLs
     const { data: project, error } = await supabase
       .from('projects')
-      .select('*, users(name, email)')
+      .select('*, users(name, email, college, department)')
       .eq('id', projectId)
       .single();
     
