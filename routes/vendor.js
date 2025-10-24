@@ -426,22 +426,26 @@ router.put('/update-status/:projectId', vendorAuth, async (req, res) => {
     const { projectId } = req.params;
     const { status, notes } = req.body;
     
+    console.log(`📝 Updating project ${projectId} status to: ${status}`);
+    
     const { data, error } = await supabase
       .from('projects')
       .update({
         status: status,
         vendor_notes: notes,
-        completed_date: status === 'completed' ? new Date() : null,
-        updated_at: new Date()
+        completed_date: status === 'completed' || status === 'Delivered' ? new Date().toISOString() : null,
+        updated_at: new Date().toISOString()
       })
       .eq('id', projectId)
       .select()
       .single();
     
     if (error) {
-      console.error('Database error:', error);
-      return res.status(500).json({ error: 'Failed to update status' });
+      console.error('❌ Database error updating status:', error);
+      return res.status(500).json({ error: 'Failed to update status', details: error.message });
     }
+    
+    console.log(`✅ Status updated successfully:`, data);
     
     res.json({
       success: true,
@@ -449,8 +453,8 @@ router.put('/update-status/:projectId', vendorAuth, async (req, res) => {
       project: data
     });
   } catch (error) {
-    console.error('Error updating status:', error);
-    res.status(500).json({ error: 'Server error' });
+    console.error('❌ Error updating status:', error);
+    res.status(500).json({ error: 'Server error', details: error.message });
   }
 });
 
