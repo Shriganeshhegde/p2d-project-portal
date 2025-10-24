@@ -4,6 +4,7 @@ services:
     env: node
     region: singapore
     plan: free
+    rootDir: student-project-portal
     buildCommand: npm install
     startCommand: npm start
     healthCheckPath: /api/health
