@@ -432,8 +432,6 @@ router.put('/update-status/:projectId', vendorAuth, async (req, res) => {
       .from('projects')
       .update({
         status: status,
-        vendor_notes: notes,
-        completed_date: status === 'completed' || status === 'Delivered' ? new Date().toISOString() : null,
         updated_at: new Date().toISOString()
       })
       .eq('id', projectId)
