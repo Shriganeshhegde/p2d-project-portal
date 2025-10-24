@@ -457,18 +457,19 @@ router.put('/update-status/:projectId', vendorAuth, async (req, res) => {
 // Get statistics for vendor dashboard
 router.get('/stats', vendorAuth, async (req, res) => {
   try {
-    // Get only paid projects
+    // Get only paid projects with file information
     const { data: projects, error: projectsError } = await supabase
       .from('projects')
-      .select('id, status, payment_status')
+      .select('id, status, payment_status, file_urls, file_count')
       .eq('payment_status', 'paid');
     
     if (projectsError) throw projectsError;
     
-    // Get all payments (both pending and completed) for paid projects
+    // Get all completed payments
     const { data: payments, error: paymentsError } = await supabase
       .from('payments')
-      .select('amount, status, project_id');
+      .select('amount, status, project_id')
+      .eq('status', 'completed');
     
     if (paymentsError) {
       console.error('Error fetching payments:', paymentsError);
@@ -479,14 +480,29 @@ router.get('/stats', vendorAuth, async (req, res) => {
     
     console.log('📊 Stats calculation:');
     console.log('Total projects:', allProjects.length);
-    console.log('Total payments:', allPayments.length);
-    console.log('Payment amounts:', allPayments.map(p => ({ amount: p.amount, status: p.status })));
+    console.log('Total completed payments:', allPayments.length);
     
-    // Calculate revenue from all payments (completed or not, since they're paid)
-    const totalRevenue = allPayments.reduce((sum, p) => {
-      const amount = parseFloat(p.amount) || 0;
-      console.log(`Adding payment: ₹${amount} (status: ${p.status})`);
-      return sum + amount;
+    // Filter projects that have files uploaded
+    const projectsWithFiles = allProjects.filter(p => 
+      p.file_urls && p.file_urls.length > 0
+    );
+    
+    console.log('Projects with files:', projectsWithFiles.length);
+    console.log('Project IDs with files:', projectsWithFiles.map(p => p.id));
+    
+    // Calculate revenue only from completed payments for projects with files
+    const totalRevenue = allPayments.reduce((sum, payment) => {
+      // Check if this payment is for a project with files
+      const hasFiles = projectsWithFiles.some(p => p.id === payment.project_id);
+      
+      if (hasFiles) {
+        const amount = parseFloat(payment.amount) || 0;
+        console.log(`✅ Adding payment: ₹${amount} (project: ${payment.project_id.substring(0, 8)})`);
+        return sum + amount;
+      } else {
+        console.log(`❌ Skipping payment: project ${payment.project_id.substring(0, 8)} has no files`);
+        return sum;
+      }
     }, 0);
     
     console.log('Total revenue calculated:', totalRevenue);
@@ -500,7 +516,7 @@ router.get('/stats', vendorAuth, async (req, res) => {
       completedProjects: allProjects.filter(p => 
         p.status === 'Delivered' || p.status === 'completed'
       ).length, // Paid and delivered
-      totalRevenue: totalRevenue
+      totalRevenue: totalRevenue // Only completed payments for projects with files
     };
     
     res.json(stats);
