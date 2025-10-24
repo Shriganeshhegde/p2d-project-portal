@@ -48,6 +48,14 @@ const Dashboard = () => {
 
     // Load real projects from backend
     loadProjects();
+    
+    // Auto-refresh projects every 30 seconds to see status updates
+    const refreshInterval = setInterval(() => {
+      loadProjects();
+    }, 30000); // 30 seconds
+    
+    // Cleanup interval on unmount
+    return () => clearInterval(refreshInterval);
   }, [navigate]);
 
   const checkDeadline = async (college, department) => {
