@@ -71,6 +71,19 @@ const Payment = () => {
   const calculateCosts = () => {
     const { pages, copies } = paymentDetails;
     
+    // TESTING MODE: Fixed ₹1 total price
+    const TESTING_MODE = true;
+    
+    if (TESTING_MODE) {
+      return {
+        printingCost: 0.50,
+        bindingCost: 0.25,
+        transportationCost: 0.25,
+        total: 1.00
+      };
+    }
+    
+    // PRODUCTION PRICING (Disabled during testing)
     // BASE COSTS (Hidden from customer)
     const basePrintingCostPerPage = 1.25; // ₹1.25 per page
     // TEMPORARILY REMOVED FOR TESTING - Will add back later
