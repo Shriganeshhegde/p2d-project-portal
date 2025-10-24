@@ -431,6 +431,9 @@
                             <th>Project Title</th>
                             <th>Pages</th>
                             <th>Copies</th>
+                            <th>Print Type</th>
+                            <th>Binding</th>
+                            <th>Paper</th>
                             <th>Files</th>
                             <th>Status</th>
                             <th>Date</th>
@@ -439,7 +442,7 @@
                     </thead>
                     <tbody id="ordersTableBody">
                         <tr>
-                            <td colspan="12" class="loading">Loading orders...</td>
+                            <td colspan="15" class="loading">Loading orders...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -574,6 +577,9 @@
                         <td>${order.title || 'Untitled'}</td>
                         <td>${printDetails.pages}</td>
                         <td>${printDetails.copies}</td>
+                        <td>${printDetails.printType}</td>
+                        <td>${printDetails.bindingType}${printDetails.bindingColor ? ' (' + printDetails.bindingColor + ')' : ''}</td>
+                        <td>${printDetails.paperType || 'N/A'}</td>
                         <td>${hasFiles ? `<span style="color: #10b981;">✓ ${order.file_count || order.file_urls.length}</span>` : '<span class="no-files">No files</span>'}</td>
                         <td><span class="status-badge ${getStatusClass(order.status)}">${order.status || 'Pending'}</span></td>
                         <td>${new Date(order.submission_date).toLocaleDateString()}</td>
@@ -590,10 +596,16 @@
         }
 
         function parseDescription(desc) {
+            // Description format: "50 pages, 2 copies, Color print, Spiral binding (Black), Premium paper"
             const parts = desc.split(',').map(p => p.trim());
+            
             return {
                 pages: parts[0]?.replace(' pages', '') || 'N/A',
-                copies: parts[1]?.replace(' copies', '') || 'N/A'
+                copies: parts[1]?.replace(' copies', '') || 'N/A',
+                printType: parts[2]?.replace(' print', '') || 'N/A',
+                bindingType: parts[3]?.replace(' binding', '').split('(')[0].trim() || 'N/A',
+                bindingColor: parts[3]?.match(/\((.*?)\)/)?.[1] || '',
+                paperType: parts[4] || 'N/A'
             };
         }
 

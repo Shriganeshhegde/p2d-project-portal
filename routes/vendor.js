@@ -465,16 +465,31 @@ router.get('/stats', vendorAuth, async (req, res) => {
     
     if (projectsError) throw projectsError;
     
-    // Get all completed payments to calculate revenue
+    // Get all payments (both pending and completed) for paid projects
     const { data: payments, error: paymentsError } = await supabase
       .from('payments')
-      .select('amount, status')
-      .eq('status', 'completed');
+      .select('amount, status, project_id');
     
-    if (paymentsError) throw paymentsError;
+    if (paymentsError) {
+      console.error('Error fetching payments:', paymentsError);
+    }
     
     const allProjects = projects || [];
     const allPayments = payments || [];
+    
+    console.log('📊 Stats calculation:');
+    console.log('Total projects:', allProjects.length);
+    console.log('Total payments:', allPayments.length);
+    console.log('Payment amounts:', allPayments.map(p => ({ amount: p.amount, status: p.status })));
+    
+    // Calculate revenue from all payments (completed or not, since they're paid)
+    const totalRevenue = allPayments.reduce((sum, p) => {
+      const amount = parseFloat(p.amount) || 0;
+      console.log(`Adding payment: ₹${amount} (status: ${p.status})`);
+      return sum + amount;
+    }, 0);
+    
+    console.log('Total revenue calculated:', totalRevenue);
     
     // Calculate stats - only for paid projects
     const stats = {
@@ -485,7 +500,7 @@ router.get('/stats', vendorAuth, async (req, res) => {
       completedProjects: allProjects.filter(p => 
         p.status === 'Delivered' || p.status === 'completed'
       ).length, // Paid and delivered
-      totalRevenue: allPayments.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0)
+      totalRevenue: totalRevenue
     };
     
     res.json(stats);
