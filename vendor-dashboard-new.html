@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P2D Vendor Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 24px;
+        }
+
+        .logout-btn {
+            padding: 8px 20px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h3 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        /* Filters */
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .filters-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .filter-group select {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .filter-btn:hover {
+            background: #5568d3;
+        }
+
+        /* Bulk Actions */
+        .bulk-actions {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .bulk-actions span {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .bulk-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .bulk-btn.download {
+            background: #10b981;
+            color: white;
+        }
+
+        .bulk-btn.download:hover {
+            background: #059669;
+        }
+
+        .bulk-btn.download-filter {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .bulk-btn.download-filter:hover {
+            background: #2563eb;
+        }
+
+        /* Table */
+        .orders-table-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .orders-table thead {
+            background: #f8f9fa;
+        }
+
+        .orders-table th {
+            padding: 12px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .orders-table td {
+            padding: 12px;
+            font-size: 13px;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: middle;
+        }
+
+        .orders-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-accepted {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-printing {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-ready {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-delivered {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 5px;
+        }
+
+        .action-btn.download {
+            background: #10b981;
+            color: white;
+        }
+
+        .action-btn.download:hover {
+            background: #059669;
+        }
+
+        .action-btn.status {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .action-btn.status:hover {
+            background: #2563eb;
+        }
+
+        .action-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .no-files {
+            color: #9ca3af;
+            font-style: italic;
+        }
+
+        .login-section {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            max-width: 400px;
+            margin: 100px auto;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Login Section -->
+        <div id="loginSection" class="login-section">
+            <h2>🔐 Vendor Login</h2>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="passwordInput" placeholder="Enter vendor password">
+            </div>
+            <button class="btn-primary" onclick="login()">Login</button>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboardSection" class="hidden">
+            <!-- Header -->
+            <div class="header">
+                <h1>📦 P2D Vendor Dashboard</h1>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Projects</h3>
+                    <div class="value" id="totalProjects">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Pending Projects</h3>
+                    <div class="value" id="pendingProjects">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Completed Projects</h3>
+                    <div class="value" id="completedProjects">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Revenue</h3>
+                    <div class="value" id="totalRevenue">₹0</div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters">
+                <div class="filters-row">
+                    <div class="filter-group">
+                        <label>Filter by College</label>
+                        <select id="collegeFilter">
+                            <option value="">All Colleges</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Filter by Department</label>
+                        <select id="departmentFilter">
+                            <option value="">All Departments</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Filter by Status</label>
+                        <select id="statusFilter">
+                            <option value="">All Status</option>
+                            <option value="Order Accepted">Order Accepted</option>
+                            <option value="Printing in progress">Printing in Progress</option>
+                            <option value="Ready for Delivery">Ready for Delivery</option>
+                            <option value="Delivered">Delivered</option>
+                        </select>
+                    </div>
+                    <button class="filter-btn" onclick="applyFilters()">Apply Filters</button>
+                </div>
+            </div>
+
+            <!-- Bulk Actions -->
+            <div class="bulk-actions">
+                <span id="selectedCount">0 selected</span>
+                <button class="bulk-btn download" onclick="downloadSelected()">📥 Download Selected</button>
+                <button class="bulk-btn download-filter" onclick="downloadByFilter()">📥 Download Filtered</button>
+            </div>
+
+            <!-- Orders Table -->
+            <div class="orders-table-container">
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" class="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
+                            <th>Order ID</th>
+                            <th>Student Name</th>
+                            <th>College</th>
+                            <th>Department</th>
+                            <th>Project Title</th>
+                            <th>Pages</th>
+                            <th>Copies</th>
+                            <th>Files</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody">
+                        <tr>
+                            <td colspan="12" class="loading">Loading orders...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api/vendor';
+        let vendorPassword = '';
+        let allOrders = [];
+        let filteredOrders = [];
+        let selectedOrders = new Set();
+
+        function login() {
+            const password = document.getElementById('passwordInput').value;
+            if (password === 'vendor123' || password === process.env.VENDOR_PASSWORD) {
+                vendorPassword = password;
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('dashboardSection').classList.remove('hidden');
+                loadDashboard();
+            } else {
+                alert('❌ Invalid password');
+            }
+        }
+
+        function logout() {
+            vendorPassword = '';
+            selectedOrders.clear();
+            document.getElementById('loginSection').classList.remove('hidden');
+            document.getElementById('dashboardSection').classList.add('hidden');
+        }
+
+        function loadDashboard() {
+            loadStats();
+            loadFilters();
+            loadOrders();
+        }
+
+        function loadStats() {
+            fetch(`${API_URL}/stats`, {
+                headers: { 'x-vendor-password': vendorPassword }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('totalProjects').textContent = data.totalProjects || 0;
+                document.getElementById('pendingProjects').textContent = data.pendingProjects || 0;
+                document.getElementById('completedProjects').textContent = data.completedProjects || 0;
+                document.getElementById('totalRevenue').textContent = '₹' + (data.totalRevenue || 0).toFixed(2);
+            })
+            .catch(error => console.error('Error loading stats:', error));
+        }
+
+        function loadFilters() {
+            fetch(`${API_URL}/filters`, {
+                headers: { 'x-vendor-password': vendorPassword }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const collegeSelect = document.getElementById('collegeFilter');
+                const departmentSelect = document.getElementById('departmentFilter');
+                
+                data.colleges.forEach(college => {
+                    const option = document.createElement('option');
+                    option.value = college;
+                    option.textContent = college;
+                    collegeSelect.appendChild(option);
+                });
+                
+                data.departments.forEach(dept => {
+                    const option = document.createElement('option');
+                    option.value = dept;
+                    option.textContent = dept;
+                    departmentSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error loading filters:', error));
+        }
+
+        function loadOrders() {
+            fetch(`${API_URL}/pending-orders`, {
+                headers: { 'x-vendor-password': vendorPassword }
+            })
+            .then(response => response.json())
+            .then(data => {
+                allOrders = data.orders || [];
+                filteredOrders = [...allOrders];
+                renderOrders();
+            })
+            .catch(error => {
+                console.error('Error loading orders:', error);
+                document.getElementById('ordersTableBody').innerHTML = 
+                    '<tr><td colspan="12" style="text-align: center; color: red;">Error loading orders</td></tr>';
+            });
+        }
+
+        function applyFilters() {
+            const college = document.getElementById('collegeFilter').value;
+            const department = document.getElementById('departmentFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            
+            filteredOrders = allOrders.filter(order => {
+                if (college && order.users?.college !== college) return false;
+                if (department && order.users?.department !== department) return false;
+                if (status && order.status !== status) return false;
+                return true;
+            });
+            
+            renderOrders();
+        }
+
+        function renderOrders() {
+            const tbody = document.getElementById('ordersTableBody');
+            
+            if (filteredOrders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="12" style="text-align: center; color: #666;">No orders found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = filteredOrders.map(order => {
+                const printDetails = parseDescription(order.description || '');
+                const hasFiles = order.file_urls && order.file_urls.length > 0;
+                const isSelected = selectedOrders.has(order.id);
+                
+                return `
+                    <tr>
+                        <td><input type="checkbox" class="checkbox" ${isSelected ? 'checked' : ''} onchange="toggleOrder('${order.id}')"></td>
+                        <td>${order.id.substring(0, 8)}...</td>
+                        <td>${order.users?.name || 'N/A'}</td>
+                        <td>${order.users?.college || 'N/A'}</td>
+                        <td>${order.users?.department || 'N/A'}</td>
+                        <td>${order.title || 'Untitled'}</td>
+                        <td>${printDetails.pages}</td>
+                        <td>${printDetails.copies}</td>
+                        <td>${hasFiles ? `<span style="color: #10b981;">✓ ${order.file_count || order.file_urls.length}</span>` : '<span class="no-files">No files</span>'}</td>
+                        <td><span class="status-badge ${getStatusClass(order.status)}">${order.status || 'Pending'}</span></td>
+                        <td>${new Date(order.submission_date).toLocaleDateString()}</td>
+                        <td>
+                            ${hasFiles ? 
+                                `<button class="action-btn download" onclick="downloadOrder('${order.id}')">📥</button>` :
+                                `<button class="action-btn download" disabled>📥</button>`
+                            }
+                            <button class="action-btn status" onclick="updateStatus('${order.id}')">📝</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function parseDescription(desc) {
+            const parts = desc.split(',').map(p => p.trim());
+            return {
+                pages: parts[0]?.replace(' pages', '') || 'N/A',
+                copies: parts[1]?.replace(' copies', '') || 'N/A'
+            };
+        }
+
+        function getStatusClass(status) {
+            if (status === 'Order Accepted') return 'status-accepted';
+            if (status === 'Printing in progress') return 'status-printing';
+            if (status === 'Ready for Delivery') return 'status-ready';
+            if (status === 'Delivered') return 'status-delivered';
+            return 'status-accepted';
+        }
+
+        function toggleSelectAll() {
+            const checked = document.getElementById('selectAll').checked;
+            if (checked) {
+                filteredOrders.forEach(order => selectedOrders.add(order.id));
+            } else {
+                selectedOrders.clear();
+            }
+            updateSelectedCount();
+            renderOrders();
+        }
+
+        function toggleOrder(orderId) {
+            if (selectedOrders.has(orderId)) {
+                selectedOrders.delete(orderId);
+            } else {
+                selectedOrders.add(orderId);
+            }
+            updateSelectedCount();
+        }
+
+        function updateSelectedCount() {
+            document.getElementById('selectedCount').textContent = `${selectedOrders.size} selected`;
+        }
+
+        function downloadOrder(orderId) {
+            window.open(`${API_URL}/download-files/${orderId}?password=${vendorPassword}`, '_blank');
+        }
+
+        function downloadSelected() {
+            if (selectedOrders.size === 0) {
+                alert('Please select at least one order');
+                return;
+            }
+            
+            fetch(`${API_URL}/download-selected`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-vendor-password': vendorPassword
+                },
+                body: JSON.stringify({ projectIds: Array.from(selectedOrders) })
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Selected_Orders_${Date.now()}.zip`;
+                a.click();
+            })
+            .catch(error => {
+                console.error('Error downloading:', error);
+                alert('❌ Failed to download selected orders');
+            });
+        }
+
+        function downloadByFilter() {
+            const college = document.getElementById('collegeFilter').value;
+            const department = document.getElementById('departmentFilter').value;
+            
+            if (!college && !department) {
+                alert('Please select a college or department filter first');
+                return;
+            }
+            
+            let url = `${API_URL}/download-by-filter?`;
+            if (college) url += `college=${encodeURIComponent(college)}&`;
+            if (department) url += `department=${encodeURIComponent(department)}`;
+            
+            window.location.href = url + `&password=${vendorPassword}`;
+        }
+
+        function updateStatus(orderId) {
+            const newStatus = prompt('Enter new status:\n1. Printing in progress\n2. Ready for Delivery\n3. Delivered');
+            
+            let status;
+            if (newStatus === '1') status = 'Printing in progress';
+            else if (newStatus === '2') status = 'Ready for Delivery';
+            else if (newStatus === '3') status = 'Delivered';
+            else return;
+            
+            fetch(`${API_URL}/update-status/${orderId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-vendor-password': vendorPassword
+                },
+                body: JSON.stringify({ status })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(`✅ Status updated to "${status}"`);
+                loadOrders();
+                loadStats();
+            })
+            .catch(error => {
+                console.error('Error updating status:', error);
+                alert('❌ Failed to update status');
+            });
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            if (!document.getElementById('dashboardSection').classList.contains('hidden')) {
+                loadStats();
+                loadOrders();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>

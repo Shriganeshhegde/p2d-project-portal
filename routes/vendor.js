@@ -181,7 +181,7 @@ router.get('/download-folder/:folderName', vendorAuth, async (req, res) => {
   }
 });
 
-// Get pending orders (paid but not completed)
+// Get all orders (renamed from pending-orders)
 router.get('/pending-orders', vendorAuth, async (req, res) => {
   try {
     const { data: projects, error } = await supabase
@@ -191,21 +191,170 @@ router.get('/pending-orders', vendorAuth, async (req, res) => {
         users (name, email, college, department)
       `)
       .eq('payment_status', 'paid')
-      .neq('status', 'completed')
       .order('submission_date', { ascending: false });
     
     if (error) {
       console.error('Database error:', error);
-      return res.status(500).json({ error: 'Failed to fetch pending orders' });
+      return res.status(500).json({ error: 'Failed to fetch orders' });
     }
     
     res.json({
-      totalPending: projects.length,
+      total: projects.length,
       orders: projects
     });
   } catch (error) {
-    console.error('Error fetching pending orders:', error);
+    console.error('Error fetching orders:', error);
     res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Get unique colleges and departments for filters
+router.get('/filters', vendorAuth, async (req, res) => {
+  try {
+    const { data: projects, error } = await supabase
+      .from('projects')
+      .select('users(college, department)')
+      .eq('payment_status', 'paid');
+    
+    if (error) throw error;
+    
+    const colleges = new Set();
+    const departments = new Set();
+    
+    projects.forEach(project => {
+      if (project.users?.college) colleges.add(project.users.college);
+      if (project.users?.department) departments.add(project.users.department);
+    });
+    
+    res.json({
+      colleges: Array.from(colleges).sort(),
+      departments: Array.from(departments).sort()
+    });
+  } catch (error) {
+    console.error('Error fetching filters:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Bulk download selected orders
+router.post('/download-selected', vendorAuth, async (req, res) => {
+  try {
+    const { projectIds } = req.body;
+    
+    if (!projectIds || projectIds.length === 0) {
+      return res.status(400).json({ error: 'No projects selected' });
+    }
+    
+    // Get all selected projects with files
+    const { data: projects, error } = await supabase
+      .from('projects')
+      .select('*, users(name, college, department)')
+      .in('id', projectIds);
+    
+    if (error) throw error;
+    
+    // Create ZIP archive
+    const archive = archiver('zip', { zlib: { level: 9 } });
+    const zipFileName = `Selected_Orders_${Date.now()}.zip`;
+    
+    res.attachment(zipFileName);
+    archive.pipe(res);
+    
+    // Download files for each project
+    for (const project of projects) {
+      if (project.file_urls && project.file_urls.length > 0) {
+        const studentName = project.users?.name || 'Student';
+        const folderName = `${studentName.replace(/\s+/g, '_')}_${project.id.substring(0, 8)}`;
+        
+        for (const fileInfo of project.file_urls) {
+          try {
+            const { data: fileData, error: downloadError } = await supabase.storage
+              .from('project-documents')
+              .download(fileInfo.path);
+            
+            if (!downloadError && fileData) {
+              const buffer = Buffer.from(await fileData.arrayBuffer());
+              archive.append(buffer, { name: `${folderName}/${fileInfo.name}` });
+            }
+          } catch (err) {
+            console.error(`Error downloading file ${fileInfo.name}:`, err);
+          }
+        }
+      }
+    }
+    
+    await archive.finalize();
+    console.log(`✅ Bulk download completed: ${projectIds.length} projects`);
+    
+  } catch (error) {
+    console.error('Error bulk downloading:', error);
+    res.status(500).json({ error: 'Failed to download selected orders' });
+  }
+});
+
+// Download by college or department filter
+router.get('/download-by-filter', vendorAuth, async (req, res) => {
+  try {
+    const { college, department } = req.query;
+    
+    let query = supabase
+      .from('projects')
+      .select('*, users(name, college, department)')
+      .eq('payment_status', 'paid');
+    
+    // Apply filters
+    if (college) {
+      query = query.eq('users.college', college);
+    }
+    if (department) {
+      query = query.eq('users.department', department);
+    }
+    
+    const { data: projects, error } = await query;
+    
+    if (error) throw error;
+    
+    if (!projects || projects.length === 0) {
+      return res.status(404).json({ error: 'No projects found with selected filters' });
+    }
+    
+    // Create ZIP archive
+    const archive = archiver('zip', { zlib: { level: 9 } });
+    const filterName = college || department || 'Filtered';
+    const zipFileName = `${filterName.replace(/\s+/g, '_')}_Orders.zip`;
+    
+    res.attachment(zipFileName);
+    archive.pipe(res);
+    
+    // Download files for each project
+    for (const project of projects) {
+      if (project.file_urls && project.file_urls.length > 0) {
+        const studentName = project.users?.name || 'Student';
+        const folderName = `${studentName.replace(/\s+/g, '_')}_${project.id.substring(0, 8)}`;
+        
+        for (const fileInfo of project.file_urls) {
+          try {
+            const { data: fileData, error: downloadError } = await supabase.storage
+              .from('project-documents')
+              .download(fileInfo.path);
+            
+            if (!downloadError && fileData) {
+              const buffer = Buffer.from(await fileData.arrayBuffer());
+              archive.append(buffer, { name: `${folderName}/${fileInfo.name}` });
+            }
+          } catch (err) {
+            console.error(`Error downloading file ${fileInfo.name}:`, err);
+          }
+        }
+      }
+    }
+    
+    await archive.finalize();
+    console.log(`✅ Filter download completed: ${projects.length} projects`);
+    
+  } catch (error) {
+    console.error('Error downloading by filter:', error);
+    res.status(500).json({ error: 'Failed to download filtered orders' });
   }
 });
 
@@ -308,23 +457,36 @@ router.put('/update-status/:projectId', vendorAuth, async (req, res) => {
 // Get statistics for vendor dashboard
 router.get('/stats', vendorAuth, async (req, res) => {
   try {
-    const { data: allProjects, error } = await supabase
+    // Get all projects with payment data
+    const { data: projects, error: projectsError } = await supabase
       .from('projects')
-      .select('status, payment_status, total_amount');
+      .select('id, status, payment_status');
     
-    // Handle null or error cases
-    const projects = allProjects || [];
+    if (projectsError) throw projectsError;
     
+    // Get all payments to calculate revenue
+    const { data: payments, error: paymentsError } = await supabase
+      .from('payments')
+      .select('amount, status')
+      .eq('status', 'completed');
+    
+    if (paymentsError) throw paymentsError;
+    
+    const allProjects = projects || [];
+    const allPayments = payments || [];
+    
+    // Calculate stats
     const stats = {
-      total: projects.length,
-      pending: projects.filter(p => p.status === 'pending').length,
-      inProgress: projects.filter(p => p.status === 'in-progress').length,
-      completed: projects.filter(p => p.status === 'completed').length,
-      paid: projects.filter(p => p.payment_status === 'paid').length,
-      unpaid: projects.filter(p => p.payment_status === 'pending').length,
-      totalRevenue: projects
-        .filter(p => p.payment_status === 'paid')
-        .reduce((sum, p) => sum + (p.total_amount || 0), 0)
+      totalProjects: allProjects.length,
+      pendingProjects: allProjects.filter(p => 
+        p.status === 'Order Accepted' || 
+        p.status === 'pending'
+      ).length,
+      completedProjects: allProjects.filter(p => 
+        p.status === 'Delivered' || 
+        p.status === 'completed'
+      ).length,
+      totalRevenue: allPayments.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0)
     };
     
     res.json(stats);
