@@ -220,11 +220,16 @@
 /* Delivery Card */
 .delivery-card {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  color: white !important;
 }
 
 .delivery-card h3 {
-  color: white;
+  color: white !important;
+  margin-bottom: 15px;
+}
+
+.delivery-card p {
+  color: white !important;
 }
 
 .delivery-info {
@@ -236,18 +241,21 @@
 .delivery-icon {
   font-size: 4rem;
   opacity: 0.9;
+  color: white !important;
 }
 
 .delivery-date {
   font-size: 1.3rem;
   font-weight: 700;
   margin: 10px 0;
+  color: white !important;
 }
 
 .delivery-location {
   font-size: 1rem;
   opacity: 0.9;
   margin: 5px 0 0 0;
+  color: white !important;
 }
 
 /* Support Card */

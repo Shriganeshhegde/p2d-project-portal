@@ -367,7 +367,7 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
         
         if (!webhookSecret) {
             console.error('⚠️ RAZORPAY_WEBHOOK_SECRET not configured');
-            return res.status(500).json({ error: 'Webhook secret not configured' });
+            return res.status(200).json({ status: 'ok' }); // Return 200 anyway
         }
 
         // Get signature from headers
@@ -375,7 +375,7 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
         
         if (!signature) {
             console.error('❌ No signature in webhook request');
-            return res.status(400).json({ error: 'No signature provided' });
+            return res.status(200).json({ status: 'ok' }); // Return 200 anyway
         }
 
         // Verify webhook signature
@@ -387,7 +387,7 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
 
         if (signature !== expectedSignature) {
             console.error('❌ Invalid webhook signature');
-            return res.status(400).json({ error: 'Invalid signature' });
+            return res.status(200).json({ status: 'ok' }); // Return 200 anyway to prevent retries
         }
 
         // Parse the webhook payload
@@ -397,34 +397,41 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
         const orderEntity = payload.payload?.order?.entity;
 
         console.log(`✅ Webhook received: ${event}`);
-        console.log('Payload:', JSON.stringify(payload, null, 2));
-
-        // Handle different webhook events
-        switch (event) {
-            case 'payment.authorized':
-            case 'payment.captured':
-                await handlePaymentSuccess(paymentEntity);
-                break;
-
-            case 'payment.failed':
-                await handlePaymentFailure(paymentEntity);
-                break;
-
-            case 'order.paid':
-                await handleOrderPaid(orderEntity);
-                break;
-
-            default:
-                console.log(`ℹ️ Unhandled webhook event: ${event}`);
-        }
-
-        // Always return 200 to acknowledge receipt
+        
+        // IMMEDIATELY respond with 200 OK before processing
         res.status(200).json({ status: 'ok' });
+
+        // Process webhook asynchronously (don't await)
+        setImmediate(async () => {
+            try {
+                console.log('Processing webhook:', event);
+                
+                switch (event) {
+                    case 'payment.authorized':
+                    case 'payment.captured':
+                        await handlePaymentSuccess(paymentEntity);
+                        break;
+
+                    case 'payment.failed':
+                        await handlePaymentFailure(paymentEntity);
+                        break;
+
+                    case 'order.paid':
+                        await handleOrderPaid(orderEntity);
+                        break;
+
+                    default:
+                        console.log(`ℹ️ Unhandled webhook event: ${event}`);
+                }
+            } catch (error) {
+                console.error('❌ Error processing webhook:', error);
+            }
+        });
 
     } catch (error) {
         console.error('❌ Webhook error:', error);
-        // Still return 200 to prevent retries for invalid requests
-        res.status(200).json({ status: 'error', message: error.message });
+        // Always return 200 to prevent Razorpay from disabling webhook
+        res.status(200).json({ status: 'ok' });
     }
 });
 
