@@ -72,7 +72,7 @@ const Payment = () => {
     const { pages, copies } = paymentDetails;
     
     // TESTING MODE: Fixed ₹1 total price
-    const TESTING_MODE = true;
+    const TESTING_MODE = false; // DISABLED - Using production pricing
     
     if (TESTING_MODE) {
       return {
