@@ -96,21 +96,20 @@ const Payment = () => {
     const baseGlassSheetTotal = baseGlassSheetCostPerCopy * copies;
     const baseTransportTotal = baseTransportationCost;
     
-    // Total base cost (before profit and additional markup)
+    // Total base cost (before profit)
     const totalBaseCost = basePrintingTotal + baseBindingTotal + baseGlassSheetTotal + baseTransportTotal;
     
-    // Add ₹10 per copy (hidden profit)
-    const hiddenProfitPerCopy = 10;
-    const totalHiddenProfit = hiddenProfitPerCopy * copies;
+    // Calculate profit margin (20% + ₹10 per copy)
+    const baseProfit = totalBaseCost * 0.20;
+    const additionalProfitPerCopy = 10; // ₹10 extra per copy
+    const totalAdditionalProfit = additionalProfitPerCopy * copies;
+    const profitMargin = baseProfit + totalAdditionalProfit;
     
-    // Add profit margin (20% to match original pricing of ₹628)
-    const profitMargin = totalBaseCost * 0.20;
+    // Final total (base cost + profit margin)
+    const finalTotal = totalBaseCost + profitMargin;
     
-    // Final total (base cost + hidden profit + profit margin)
-    const finalTotal = totalBaseCost + totalHiddenProfit + profitMargin;
-    
-    // What customer sees (combined costs, profit and markup hidden)
-    const totalHiddenAmount = profitMargin + totalHiddenProfit;
+    // What customer sees (profit hidden in distributed costs)
+    const totalHiddenAmount = profitMargin;
     const customerPrintingCost = basePrintingTotal + (totalHiddenAmount * (basePrintingTotal / totalBaseCost));
     const customerBindingCost = baseBindingTotal + baseGlassSheetTotal + (totalHiddenAmount * ((baseBindingTotal + baseGlassSheetTotal) / totalBaseCost));
     const customerTransportCost = baseTransportTotal + (totalHiddenAmount * (baseTransportTotal / totalBaseCost));
@@ -122,11 +121,11 @@ const Payment = () => {
       total: Math.round(finalTotal),
       // Hidden calculations (for internal use only)
       _baseCost: Math.round(totalBaseCost),
-      _hiddenProfitPerCopy: hiddenProfitPerCopy,
-      _totalHiddenProfit: Math.round(totalHiddenProfit),
-      _profitMargin: Math.round(profitMargin),
-      _profitPercentage: 35,
-      _totalHiddenAmount: Math.round(totalHiddenAmount)
+      _baseProfit: Math.round(baseProfit),
+      _additionalProfitPerCopy: additionalProfitPerCopy,
+      _totalAdditionalProfit: Math.round(totalAdditionalProfit),
+      _totalProfitMargin: Math.round(profitMargin),
+      _profitPercentage: '20% + ₹10/copy'
     };
   };
 
