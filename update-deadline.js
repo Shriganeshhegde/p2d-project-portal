@@ -4,7 +4,7 @@ const { supabase } = require('./utils/supabase');
 async function updateDeadline() {
   try {
     const collegeName = 'Dayananda Sagar Academy of Technology and Management';
-    const newDeadline = '2025-10-25';
+    const newDeadline = '2025-10-30';
     
     console.log(`Updating deadline for: ${collegeName}`);
     console.log(`New deadline: ${newDeadline}`);
