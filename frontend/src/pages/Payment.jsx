@@ -83,9 +83,9 @@ const Payment = () => {
       };
     }
     
-    // PRODUCTION PRICING (ORIGINAL - ₹638 for 68 pages, 2 copies)
+    // PRODUCTION PRICING (ORIGINAL - ₹628 for 68 pages, 2 copies)
     // BASE COSTS (Hidden from customer)
-    const basePrintingCostPerPage = 2.50; // ₹2.50 per page (original)
+    const basePrintingCostPerPage = 2.00; // ₹2.00 per page (original)
     const baseTransportationCost = 18; // ₹18 fixed
     const baseBindingCostPerCopy = 80; // ₹80 per copy
     const baseGlassSheetCostPerCopy = 40; // ₹40 per copy
@@ -103,8 +103,8 @@ const Payment = () => {
     const hiddenProfitPerCopy = 10;
     const totalHiddenProfit = hiddenProfitPerCopy * copies;
     
-    // Add profit margin (25% to match original pricing)
-    const profitMargin = totalBaseCost * 0.25;
+    // Add profit margin (20% to match original pricing of ₹628)
+    const profitMargin = totalBaseCost * 0.20;
     
     // Final total (base cost + hidden profit + profit margin)
     const finalTotal = totalBaseCost + totalHiddenProfit + profitMargin;
