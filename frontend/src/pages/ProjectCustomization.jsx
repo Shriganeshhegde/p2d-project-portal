@@ -188,7 +188,7 @@ const ProjectCustomization = () => {
             ))}
           </div>
           <div className="binding-note">
-            <p>ℹ️ <strong>Note:</strong> The final output may vary and may not be identical to the above pictures.</p>
+            <p>ℹ️ <strong>Note:</strong> The final output may vary and may not be identical to the pictures shown above.</p>
           </div>
         </div>
 
