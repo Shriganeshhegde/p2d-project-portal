@@ -83,16 +83,12 @@ const Payment = () => {
       };
     }
     
-    // PRODUCTION PRICING (Disabled during testing)
+    // PRODUCTION PRICING (RESTORED)
     // BASE COSTS (Hidden from customer)
     const basePrintingCostPerPage = 1.25; // ₹1.25 per page
-    // TEMPORARILY REMOVED FOR TESTING - Will add back later
-    // const baseTransportationCost = 18; // ₹18 fixed
-    // const baseBindingCostPerCopy = 80; // ₹80 per copy
-    // const baseGlassSheetCostPerCopy = 40; // ₹40 per copy
-    const baseTransportationCost = 0; // TESTING: Removed transportation charge
-    const baseBindingCostPerCopy = 0; // TESTING: Removed binding charge
-    const baseGlassSheetCostPerCopy = 0; // TESTING: Removed glass sheet charge
+    const baseTransportationCost = 18; // ₹18 fixed
+    const baseBindingCostPerCopy = 80; // ₹80 per copy
+    const baseGlassSheetCostPerCopy = 40; // ₹40 per copy
     
     // Calculate base costs
     const basePrintingTotal = pages * basePrintingCostPerPage * copies;
@@ -103,31 +99,32 @@ const Payment = () => {
     // Total base cost (before profit and additional markup)
     const totalBaseCost = basePrintingTotal + baseBindingTotal + baseGlassSheetTotal + baseTransportTotal;
     
-    // Add ₹25 per copy (hidden markup)
-    const additionalMarkupPerCopy = 25;
-    const totalAdditionalMarkup = additionalMarkupPerCopy * copies;
+    // Add ₹10 per copy (hidden profit)
+    const hiddenProfitPerCopy = 10;
+    const totalHiddenProfit = hiddenProfitPerCopy * copies;
     
     // Add profit margin (adjusted to 35% to maintain competitive pricing)
     const profitMargin = totalBaseCost * 0.35;
     
-    // Final total (base cost + markup + profit)
-    const finalTotal = totalBaseCost + totalAdditionalMarkup + profitMargin;
+    // Final total (base cost + hidden profit + profit margin)
+    const finalTotal = totalBaseCost + totalHiddenProfit + profitMargin;
     
     // What customer sees (combined costs, profit and markup hidden)
-    const totalHiddenAmount = profitMargin + totalAdditionalMarkup;
+    const totalHiddenAmount = profitMargin + totalHiddenProfit;
     const customerPrintingCost = basePrintingTotal + (totalHiddenAmount * (basePrintingTotal / totalBaseCost));
     const customerBindingCost = baseBindingTotal + baseGlassSheetTotal + (totalHiddenAmount * ((baseBindingTotal + baseGlassSheetTotal) / totalBaseCost));
     const customerTransportCost = baseTransportTotal + (totalHiddenAmount * (baseTransportTotal / totalBaseCost));
 
     return {
       printingCost: Math.round(customerPrintingCost),
-      bindingCost: Math.round(customerBindingCost), // Includes glass sheet (currently ₹0 for testing)
+      bindingCost: Math.round(customerBindingCost), // Includes glass sheet
       transportationCost: Math.round(customerTransportCost),
       total: Math.round(finalTotal),
       // Hidden calculations (for internal use only)
       _baseCost: Math.round(totalBaseCost),
-      _additionalMarkup: Math.round(totalAdditionalMarkup),
-      _profit: Math.round(profitMargin),
+      _hiddenProfitPerCopy: hiddenProfitPerCopy,
+      _totalHiddenProfit: Math.round(totalHiddenProfit),
+      _profitMargin: Math.round(profitMargin),
       _profitPercentage: 35,
       _totalHiddenAmount: Math.round(totalHiddenAmount)
     };
