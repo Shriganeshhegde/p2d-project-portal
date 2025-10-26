@@ -176,6 +176,21 @@
   font-weight: 500;
 }
 
+.binding-note {
+  background: #fff3cd;
+  border-left: 4px solid #856404;
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin-top: 20px;
+}
+
+.binding-note p {
+  margin: 0;
+  color: #856404;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
 .option-card {
   padding: 25px;
   border: 2px solid #e0e0e0;
