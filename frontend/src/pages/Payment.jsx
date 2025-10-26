@@ -85,7 +85,7 @@ const Payment = () => {
     
     // PRODUCTION PRICING (UPDATED - ₹648 for 68 pages, 2 copies)
     // BASE COSTS (Hidden from customer)
-    const basePrintingCostPerPage = 2.00; // ₹2.00 per page (adjusted to match ₹648)
+    const basePrintingCostPerPage = 1.95; // ₹1.95 per page (calculated to match ₹648)
     const baseTransportationCost = 18; // ₹18 fixed
     const baseBindingCostPerCopy = 80; // ₹80 per copy
     const baseGlassSheetCostPerCopy = 40; // ₹40 per copy
