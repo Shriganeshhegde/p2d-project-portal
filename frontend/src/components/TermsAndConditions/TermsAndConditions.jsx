@@ -86,7 +86,7 @@ const TermsAndConditions = ({ isOpen, onClose, onAccept }) => {
 
           <section>
             <h4>9. Contact Information</h4>
-            <p>For support or queries, contact us through the app or email support@p2d.com</p>
+            <p>For support or queries, contact us through the app or email p2dsolutions@gmail.com</p>
           </section>
         </div>
 

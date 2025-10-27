@@ -16,7 +16,7 @@ const Footer = () => {
               <FaPhone /> <a href="tel:+918431042937">+91 8431042937</a>
             </div>
             <div className="footer-contact-item">
-              <FaEnvelope /> <a href="mailto:support@p2d.com">support@p2d.com</a>
+              <FaEnvelope /> <a href="mailto:p2dsolutions@gmail.com">p2dsolutions@gmail.com</a>
             </div>
             <div className="footer-contact-item">
               <FaMapMarkerAlt /> Bangalore, Karnataka

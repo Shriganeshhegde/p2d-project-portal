@@ -116,7 +116,7 @@ const TermsConditions = () => {
           </p>
           <ul>
             <li>Phone: +91 8431042937</li>
-            <li>Email: support@p2d.com</li>
+            <li>Email: p2dsolutions@gmail.com</li>
           </ul>
         </section>
       </div>

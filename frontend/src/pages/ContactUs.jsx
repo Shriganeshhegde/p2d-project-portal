@@ -62,7 +62,7 @@ const ContactUs = () => {
               </div>
               <div className="contact-details">
                 <h3>Email</h3>
-                <p><a href="mailto:support@p2d.com">support@p2d.com</a></p>
+                <p><a href="mailto:p2dsolutions@gmail.com">p2dsolutions@gmail.com</a></p>
                 <p className="contact-note">We'll respond within 24 hours</p>
               </div>
             </div>
