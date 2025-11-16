@@ -7,17 +7,23 @@ const { supabase, supabaseAdmin } = require('./utils/supabase');
 const app = express();
 const server = createServer(app);
 
-// Middleware - Allow localhost and production (updated for Render deployment)
-const allowedOrigins = [
+// Middleware - CORS configuration
+// Allow configuring allowed origins via the CORS_ALLOWED_ORIGINS env var (comma-separated).
+// Falls back to localhost and the Vercel preview URL.
+const defaultOrigins = [
   'http://localhost:3000',
   'https://p2d-project-portal.vercel.app'
 ];
+
+const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS
+  ? process.env.CORS_ALLOWED_ORIGINS.split(',').map(s => s.trim())
+  : defaultOrigins;
 
 app.use(cors({
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    
+
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
@@ -37,6 +43,11 @@ app.use(express.urlencoded({ extended: true }));
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Root - redirect to health for easy verification when someone visits the base domain
+app.get('/', (req, res) => {
+  return res.redirect('/api/health');
 });
 
 // API Routes
