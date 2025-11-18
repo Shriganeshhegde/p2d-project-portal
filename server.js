@@ -52,20 +52,6 @@ app.get('/', (req, res) => {
   return res.redirect('/api/health');
 });
 
-// Debug: expose allowed origins and raw env var for quick verification
-// NOTE: temporary — remove after debugging
-app.get('/api/debug/origins', (req, res) => {
-  try {
-    return res.json({
-      allowedOrigins,
-      rawEnv: process.env.CORS_ALLOWED_ORIGINS || null,
-      nodeEnv: process.env.NODE_ENV || null
-    });
-  } catch (err) {
-    return res.status(500).json({ error: 'debug-failed', details: err.message });
-  }
-});
-
 // API Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/projects', require('./routes/projects'));
