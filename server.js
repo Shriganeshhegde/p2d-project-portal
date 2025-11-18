@@ -37,6 +37,8 @@ app.use(cors({
   },
   credentials: true
 }));
+// Ensure preflight (OPTIONS) requests get proper CORS headers
+app.options('*', cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -48,6 +50,20 @@ app.get('/api/health', (req, res) => {
 // Root - redirect to health for easy verification when someone visits the base domain
 app.get('/', (req, res) => {
   return res.redirect('/api/health');
+});
+
+// Debug: expose allowed origins and raw env var for quick verification
+// NOTE: temporary — remove after debugging
+app.get('/api/debug/origins', (req, res) => {
+  try {
+    return res.json({
+      allowedOrigins,
+      rawEnv: process.env.CORS_ALLOWED_ORIGINS || null,
+      nodeEnv: process.env.NODE_ENV || null
+    });
+  } catch (err) {
+    return res.status(500).json({ error: 'debug-failed', details: err.message });
+  }
 });
 
 // API Routes
@@ -67,6 +83,10 @@ app.use((req, res) => {
 // Global error handling middleware
 app.use((err, req, res, next) => {
   console.error('Error:', err);
+  // Return a clearer 403 when CORS middleware rejects the origin
+  if (err && err.message === 'Not allowed by CORS') {
+    return res.status(403).json({ error: 'CORS origin not allowed', details: err.message });
+  }
   res.status(500).json({ error: 'Internal server error', details: err.message });
 });
 
