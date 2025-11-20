@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const { createServer } = require('http');
 const { supabase, supabaseAdmin } = require('./utils/supabase');
 
@@ -60,6 +61,18 @@ app.use('/api/page-counter', require('./routes/pageCounter'));
 app.use('/api/files', require('./routes/fileUpload'));
 app.use('/api/deadlines', require('./routes/deadlines'));
 app.use('/api/vendor', require('./routes/vendor'));
+
+// Serve sitemap.xml from frontend/public to make it available immediately
+app.get('/sitemap.xml', (req, res) => {
+  const sitemapPath = path.resolve(__dirname, 'frontend', 'public', 'sitemap.xml');
+  res.setHeader('Content-Type', 'application/xml');
+  res.sendFile(sitemapPath, (err) => {
+    if (err) {
+      console.error('Error sending sitemap:', err);
+      return res.status(404).send('Not found');
+    }
+  });
+});
 
 // 404 handler
 app.use((req, res) => {
